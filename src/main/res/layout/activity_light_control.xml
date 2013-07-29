@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              tools:context=".LightControlActivity">
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="30dp" >
+
+        <RadioButton android:id="@+id/radio_open_channel"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_weight="0.5"
+                     android:text="Open channel"
+                     android:onClick="onChannelRadioButtonClicked"/>
+
+        <RadioButton android:id="@+id/radio_close_channel"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_weight="0.5"
+                     android:text="Close channel"
+                     android:onClick="onChannelRadioButtonClicked"/>
+    </RadioGroup>
+
+    <TextView android:id="@+id/intensity_reported_label"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:paddingTop="30dp"
+              android:textSize="12sp"
+              android:text="@string/reported_intensity_label" />
+
+    <TextView android:id="@+id/intensity_reported_view"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:paddingTop="10dp"
+              android:textSize="25sp"
+              android:text="0" />
+
+    <TextView android:id="@+id/intensity_slider_label"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:paddingTop="30dp"
+              android:textSize="12sp"
+              android:text="@string/light_intensity_label" />
+
+    <SeekBar android:id="@+id/intensity_slider"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:paddingTop="10dp" />
+
+</LinearLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Ant Light Controller</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+
+    <string name="open_button">Open channel</string>
+    <string name="light_intensity_label">LIGHT INTENSITY</string>
+    <string name="reported_intensity_label">REPORTED LIGHT INTENSITY</string>
+
+</resources>
