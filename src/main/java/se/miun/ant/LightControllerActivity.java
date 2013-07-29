@@ -1,13 +1,12 @@
 package se.miun.ant;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
-import android.view.View;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.dsi.ant.channel.AntChannel;
@@ -17,9 +16,7 @@ import com.dsi.ant.message.fromant.DataMessage;
 import se.miun.ant.ChannelInitializer.ChannelInitializationException;
 import se.miun.ant.ChannelRetriever.ChannelRetrieveException;
 
-public class LightControllerActivity extends Activity implements ChannelDataListener {
-
-    // Test gits
+public class LightControllerActivity extends ActionBarActivity implements ChannelDataListener {
 
     public static final String TAG = "ANTLightController";
 
@@ -30,9 +27,6 @@ public class LightControllerActivity extends Activity implements ChannelDataList
     // Used to set channel parameters of an retrieved channel.
     private ChannelInitializer channelInitializer;
 
-    private TextView reportedIntensityTextView;
-    private SeekBar intensitySlider;
-
     // For now only a single channel is supported.
     private AntChannel channel;
 
@@ -42,14 +36,19 @@ public class LightControllerActivity extends Activity implements ChannelDataList
         setContentView(R.layout.activity_light_control);
 
         getViewReferences();
-        intensitySlider.setOnSeekBarChangeListener(getIntensitySliderChangeListener());
-
         initializeComponents();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.light_control, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private void getViewReferences() {
-        reportedIntensityTextView = (TextView)findViewById(R.id.intensity_reported_view);
-        intensitySlider = (SeekBar)findViewById(R.id.intensity_slider);
+
     }
 
     private void initializeComponents() {
@@ -57,18 +56,29 @@ public class LightControllerActivity extends Activity implements ChannelDataList
         channelInitializer = new ChannelInitializer();
     }
 
-    public void onChannelRadioButtonClicked(View view) {
-        // This method is called automatically when the user presses a channel radio button.
-        switch(view.getId()) {
-            case R.id.radio_open_channel : {
-                openChannel();
-                break;
-            }
-            case R.id.radio_close_channel : {
-                closeChannel();
-                break;
-            }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items.
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                openSettings();
+                return true;
+            case R.id.action_refresh:
+                refreshAntChannels();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void openSettings() {
+        // TODO: implement this
+        Toast.makeText(this, "Settings pressed", Toast.LENGTH_LONG).show();
+    }
+
+    private void refreshAntChannels() {
+        // TODO: implement this
+        Toast.makeText(this, "Refresh pressed", Toast.LENGTH_LONG).show();
     }
 
     private void openChannel() {
@@ -136,46 +146,27 @@ public class LightControllerActivity extends Activity implements ChannelDataList
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.light_control, menu);
-        return true;
-    }
-
-    @Override
     public void onBroadcastData(final byte[] data) {
         // This method is called when the channel receives a broadcast data packet.
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                updateIntensityView(data);
+                //updateIntensityView(data);
             }
         });
     }
 
+    /*
     private void updateIntensityView(byte[] data) {
         int intensityValue = parseIntensityData(data);
         reportedIntensityTextView.setText(String.valueOf(intensityValue));
     }
+    */
 
     private byte parseIntensityData(byte[] data) {
         // data has a length of 8 and is the payload sent by the master at period.
         // For now return the first value in the array. TODO: implement the real protocol.
         return data[0];
-    }
-
-    private SeekBar.OnSeekBarChangeListener getIntensitySliderChangeListener() {
-        return new SeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                updateIntensityBroadcastData((byte)progress);
-            }
-
-            // These methods are not used.
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
-        };
     }
 
     private void updateIntensityBroadcastData(byte intensity) {
