@@ -1,7 +1,7 @@
 package se.miun.ant;
 
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
@@ -14,10 +14,12 @@ import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.message.fromant.DataMessage;
 
-import se.miun.ant.ChannelRetriever.ChannelRetrieveException;
 import se.miun.ant.ChannelInitializer.ChannelInitializationException;
+import se.miun.ant.ChannelRetriever.ChannelRetrieveException;
 
 public class LightControllerActivity extends Activity implements ChannelDataListener {
+
+    // Test gits
 
     public static final String TAG = "ANTLightController";
 
