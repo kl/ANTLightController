@@ -2,6 +2,7 @@ package se.miun.ant;
 
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -13,19 +14,16 @@ import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.message.fromant.DataMessage;
 
-import se.miun.ant.ChannelInitializer.ChannelInitializationException;
-import se.miun.ant.ChannelRetriever.ChannelRetrieveException;
-
-public class LightControllerActivity extends ActionBarActivity implements ChannelDataListener {
+public class LightControllerActivity extends ActionBarActivity
+       implements ChannelDataListener,
+                  ChannelListFragment.OnChannelSelectedListener,
+                  ChannelSearcher.OnChannelConnectedListener {
 
     public static final String TAG = "ANTLightController";
 
-    private static final int CHANNEL_ID = 1;
-
     // Used to get references to ANT channels from the ANT Radio Service.
     private ChannelRetriever channelRetriever;
-    // Used to set channel parameters of an retrieved channel.
-    private ChannelInitializer channelInitializer;
+    private ChannelSearcher channelSearcher;
 
     // For now only a single channel is supported.
     private AntChannel channel;
@@ -35,8 +33,8 @@ public class LightControllerActivity extends ActionBarActivity implements Channe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_light_control);
 
-        getViewReferences();
         initializeComponents();
+        //channelSearcher.startChannelSearch();
     }
 
     @Override
@@ -47,13 +45,33 @@ public class LightControllerActivity extends ActionBarActivity implements Channe
         return super.onCreateOptionsMenu(menu);
     }
 
-    private void getViewReferences() {
-
+    private void initializeComponents() {
+        channelSearcher = new ChannelSearcher(this);
+        channelSearcher.addOnChannelConnectedListener(this);
     }
 
-    private void initializeComponents() {
-        channelRetriever = new ChannelRetriever(this);
-        channelInitializer = new ChannelInitializer();
+    @Override
+    public void onChannelSearcherInitialized() {
+        channelSearcher.startChannelSearch();
+    }
+
+    @Override
+    public void onChannelConnected(final ChannelWrapper channelWrapper) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FragmentManager fm = getSupportFragmentManager();
+                ChannelListFragment channelListFragment =
+                        (ChannelListFragment)fm.findFragmentById(R.id.channel_list_fragment);
+
+                channelListFragment.addChannelWrapper(channelWrapper);
+            }
+        });
+    }
+
+    @Override
+    public void onChannelSelected(ChannelWrapper channelWrapper) {
+        // TODO: initiate the edit fragment and pass in the channel wrapper to it
     }
 
     @Override
@@ -78,25 +96,7 @@ public class LightControllerActivity extends ActionBarActivity implements Channe
 
     private void refreshAntChannels() {
         // TODO: implement this
-        Toast.makeText(this, "Refresh pressed", Toast.LENGTH_LONG).show();
-    }
-
-    private void openChannel() {
-        try {
-            channel = channelRetriever.getChannel();
-            channelInitializer.initializeChannel(channel, getNewChannelId());
-        } catch (ChannelRetrieveException e) {
-            Log.e(TAG, "Unable to retrieve channel: " + e.getMessage());
-            notifyUserChannelError(e);
-            return;
-        } catch (ChannelInitializationException e) {
-            Log.e(TAG, "Unable to initialize channel: " + e.getMessage());
-            notifyUserChannelError(e);
-            return;
-        }
-
-        setChannelEventHandler(channel);
-        tryOpenChannel(channel);
+        channelSearcher.startChannelSearch();
     }
 
     private void closeChannel() {
@@ -113,37 +113,6 @@ public class LightControllerActivity extends ActionBarActivity implements Channe
         }
     }
 
-    private int getNewChannelId() {
-        // Each channel will need to have a unique channel id in order to differentiate them.
-        // Since there is only one channel at the moment, return a constant value.
-        return CHANNEL_ID;
-    }
-
-    private void setChannelEventHandler(AntChannel channel) {
-        ChannelEventHandler handler = new ChannelEventHandler();
-
-        try {
-            channel.setChannelEventHandler(handler);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Unable to set channel event handler: " + e.getMessage());
-            notifyUserChannelError(e);
-            return;
-        }
-
-        handler.setChannelDataListener(this);
-    }
-
-    private void tryOpenChannel(AntChannel channel) {
-        try {
-            channel.open();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Unable to open channel: " + e.getMessage());
-            notifyUserChannelError(e);
-        } catch (AntCommandFailedException e) {
-            Log.e(TAG, "Unable to open channel: " + e.getMessage());
-            notifyUserChannelError(e);
-        }
-    }
 
     @Override
     public void onBroadcastData(final byte[] data) {
@@ -196,11 +165,7 @@ public class LightControllerActivity extends ActionBarActivity implements Channe
         return data;
     }
 
-    private void notifyUserChannelError(Exception e) {
-        Toast.makeText(this,
-                       "Error opening ANT channel: " + e.getMessage() + "\nPlease try again.",
-                       Toast.LENGTH_LONG).show();
-    }
+
 }
 
 

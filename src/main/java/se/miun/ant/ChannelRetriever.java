@@ -15,6 +15,10 @@ import com.dsi.ant.channel.PredefinedNetwork;
 
 public class ChannelRetriever implements ServiceConnection {
 
+    interface OnChannelProviderAvailableListener {
+        public void onChannelProviderAvailable();
+    }
+
     public static final String TAG = "ANTLightController";
 
     public class ChannelRetrieveException extends Exception {
@@ -25,15 +29,17 @@ public class ChannelRetriever implements ServiceConnection {
     private Context context;
     private AntService antService;
     private AntChannelProvider channelProvider;
+    private OnChannelProviderAvailableListener listener;
 
-    public ChannelRetriever(Context context) {
-        this.context = context;
+    public ChannelRetriever(Context context, OnChannelProviderAvailableListener listener) {
+        this.context = context.getApplicationContext();
+        this.listener = listener;
         AntService.bindService(context, this);
     }
 
     public AntChannel getChannel() throws ChannelRetrieveException {
         if (channelProvider == null) {
-            throw new ChannelRetrieveException("ANT Channel Provider is not available.");
+            throw new ChannelRetrieveException("ANT Channel Provider has not been initialized.");
         }
 
         try {
@@ -51,6 +57,7 @@ public class ChannelRetriever implements ServiceConnection {
 
         try {
             channelProvider = antService.getChannelProvider();
+            listener.onChannelProviderAvailable();
         } catch (RemoteException e) {
             Log.e(TAG, e.getMessage());
         }
