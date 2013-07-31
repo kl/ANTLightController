@@ -50,8 +50,7 @@ public class LightControllerActivity extends ActionBarActivity
     }
 
     private void initializeComponents() {
-        channelSearcher = new ChannelSearcher(this);
-        channelSearcher.addOnChannelConnectedListener(this);
+        channelSearcher = new ChannelSearcher(this, this);
     }
 
     private void initializeUI() {
@@ -67,7 +66,7 @@ public class LightControllerActivity extends ActionBarActivity
 
     @Override
     public void onChannelSearcherInitialized() {
-        channelSearcher.startChannelSearch();
+        //channelSearcher.startChannelSearch();
     }
 
     @Override
