@@ -1,7 +1,6 @@
 package se.miun.ant;
 
 import android.os.RemoteException;
-import android.util.Log;
 
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
@@ -13,12 +12,12 @@ public class ChannelInitializer {
         public ChannelInitializationException(String message, Throwable cause) { super(message, cause); }
     }
 
-    public void initializeChannel(AntChannel channel, int deviceNumber)
+    public void initializeChannel(AntChannel channel)
             throws ChannelInitializationException {
 
         try {
             channel.assign(DefaultChannelParameters.TYPE);
-            channel.setChannelId(DefaultChannelParameters.getChannelId(deviceNumber));
+            channel.setChannelId(DefaultChannelParameters.getChannelId());
             channel.setPeriod(DefaultChannelParameters.PERIOD);
             channel.setRfFrequency(DefaultChannelParameters.FREQUENCY);
 
