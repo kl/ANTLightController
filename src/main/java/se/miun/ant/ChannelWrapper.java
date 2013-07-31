@@ -63,7 +63,8 @@ public class ChannelWrapper implements IAntChannelEventHandler {
 
         if (messageType == MessageFromAntType.BROADCAST_DATA) {
             BroadcastDataMessage message = new BroadcastDataMessage(messageParcel);
-            listener.onChannelWrapperDataReceived(message.getPayload(), this);
+            byte[] messageData = message.getPayload();
+            if (messageData != null) listener.onChannelWrapperDataReceived(messageData, this);
         }
 
     }

@@ -16,7 +16,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
     public interface OnChannelConnectedListener {
         public void onChannelSearcherInitialized();
-        public void onChannelConnected(ChannelWrapper channelWrapper);
+        public void onChannelConnected(AntChannel antChannel);
     }
 
     private class EventHandler implements IAntChannelEventHandler {
@@ -37,8 +37,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                     e.printStackTrace();
                 }
 
-                ChannelWrapper wrapper = new ChannelWrapper(channel);
-                listener.onChannelConnected(wrapper);
+                listener.onChannelConnected(channel);
 
                 startChannelSearch();
             }

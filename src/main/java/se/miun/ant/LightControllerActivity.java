@@ -1,18 +1,19 @@
 package se.miun.ant;
 
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.message.fromant.DataMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LightControllerActivity extends ActionBarActivity
        implements ChannelDataListener,
@@ -21,18 +22,21 @@ public class LightControllerActivity extends ActionBarActivity
 
     public static final String TAG = "ANTLightController";
 
+    private static final String CHANNEL_LIST_FRAGMENT_TAG = "channel_list_fragment_tag";
+
     // Used to get references to ANT channels from the ANT Radio Service.
-    private ChannelRetriever channelRetriever;
     private ChannelSearcher channelSearcher;
 
-    // For now only a single channel is supported.
-    private AntChannel channel;
+    private List<ChannelWrapper> channelWrappers = new ArrayList<ChannelWrapper>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_light_control);
 
+        initializeUI();
         initializeComponents();
         //channelSearcher.startChannelSearch();
     }
@@ -50,28 +54,44 @@ public class LightControllerActivity extends ActionBarActivity
         channelSearcher.addOnChannelConnectedListener(this);
     }
 
+    private void initializeUI() {
+        ChannelListFragment channelViewFragment = new ChannelListFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        transaction.add(R.id.channel_list_fragment_container,
+                        channelViewFragment,
+                        CHANNEL_LIST_FRAGMENT_TAG);
+
+        transaction.commit();
+    }
+
     @Override
     public void onChannelSearcherInitialized() {
         channelSearcher.startChannelSearch();
     }
 
     @Override
-    public void onChannelConnected(final ChannelWrapper channelWrapper) {
+    public void onChannelConnected(final AntChannel antChannel) {
+
+        final ChannelWrapper wrapper = new ChannelWrapper(antChannel);
+        channelWrappers.add(wrapper);
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 FragmentManager fm = getSupportFragmentManager();
                 ChannelListFragment channelListFragment =
-                        (ChannelListFragment)fm.findFragmentById(R.id.channel_list_fragment);
+                        (ChannelListFragment)fm.findFragmentByTag(CHANNEL_LIST_FRAGMENT_TAG);
 
-                channelListFragment.addChannelWrapper(channelWrapper);
+                channelListFragment.addChannelWrapper(wrapper);
             }
         });
     }
 
     @Override
-    public void onChannelSelected(ChannelWrapper channelWrapper) {
-        // TODO: initiate the edit fragment and pass in the channel wrapper to it
+    public void onChannelSelected(int channelListPosition) {
+        ChannelWrapper wrapper = channelWrappers.get(channelListPosition);
+        startChannelViewFragment(wrapper);
     }
 
     @Override
@@ -89,6 +109,17 @@ public class LightControllerActivity extends ActionBarActivity
         }
     }
 
+    private void startChannelViewFragment(ChannelWrapper channelWrapper) {
+        ChannelViewFragment channelViewFragment = new ChannelViewFragment(channelWrapper);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        transaction.replace(R.id.channel_list_fragment_container, channelViewFragment);
+        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
+    }
+
     private void openSettings() {
         // TODO: implement this
         Toast.makeText(this, "Settings pressed", Toast.LENGTH_LONG).show();
@@ -99,6 +130,7 @@ public class LightControllerActivity extends ActionBarActivity
         channelSearcher.startChannelSearch();
     }
 
+    /*
     private void closeChannel() {
         if (channel != null) {
             try {
@@ -112,6 +144,7 @@ public class LightControllerActivity extends ActionBarActivity
             }
         }
     }
+    */
 
 
     @Override
@@ -138,6 +171,7 @@ public class LightControllerActivity extends ActionBarActivity
         return data[0];
     }
 
+    /*
     private void updateIntensityBroadcastData(byte intensity) {
         if (channel == null) return;
 
@@ -147,6 +181,7 @@ public class LightControllerActivity extends ActionBarActivity
             Log.e(TAG, "Unable to set broadcast data: " + e.getMessage());
         }
     }
+    */
 
     private byte[] makeBroadcastData(byte intensity) {
         // TODO: implement the real protocol.
