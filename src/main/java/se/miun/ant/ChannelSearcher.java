@@ -55,7 +55,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
     public static final String TAG = "ANTLightController";
 
     private Activity activity;                      // Activity used for Toast.
-    private OnChannelSearchStatusListener listener;    // Is notified when a channel has connected.
+    private OnChannelSearchStatusListener listener; // Is notified when a channel has connected.
     private ChannelRetriever channelRetriever;      // Used to get channels from the ANT system.
     private ChannelInitializer channelInitializer;  // Used to set default channel parameters.
 
@@ -122,7 +122,8 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
             @Override
             public void run() {
-                AntChannel channel;
+
+                AntChannel channel = null;
 
                 try {
                     channel = channelRetriever.getChannel();
@@ -132,15 +133,19 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
                 } catch (ChannelRetriever.ChannelRetrieveException e) {
                     logErrorAndNotify("Unable to retrieve channel: " + e.getMessage(), e);
+                    releaseChannel(channel);
                     return;
                 } catch (ChannelInitializer.ChannelInitializationException e) {
                     logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
+                    releaseChannel(channel);
                     return;
                 } catch (RemoteException e) {
                     logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
+                    releaseChannel(channel);
                     return;
                 } catch (AntCommandFailedException e) {
                     logErrorAndNotify("Unable to open channel: " + e.getMessage(), e);
+                    releaseChannel(channel);
                     return;
                 }
 
@@ -148,14 +153,21 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
         }).start();
     }
 
-    // Note two different threads are calling this method:
+    // Note two different threads are calling two methods:
     // 1) The thread created by startChannelSearchThread()
     // 2) The thread created by the TimerTask in the AntChannelEventHandler.
     // However, these threads do not run at the same time, so the synchronized is a precaution only.
+
     private synchronized void stopChannelSearch() {
         if (searchInProgress) {
             searchInProgress = false;
             listener.onChannelSearchFinished();
+        }
+    }
+
+    private synchronized void releaseChannel(AntChannel channel) {
+        if (channel != null) {
+            channel.release();
         }
     }
 
@@ -208,6 +220,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
                 @Override
                 public void run() {
+                    releaseChannel(channel);
                     stopChannelSearch();
                 }
             }, 1000 * 15); // 15s delay. TODO: use a constant. See com.dsi.ant.message.LowPrioritySearchTimeout
