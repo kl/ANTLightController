@@ -8,10 +8,11 @@ import android.widget.Toast;
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntCommandFailedException;
 import com.dsi.ant.channel.IAntChannelEventHandler;
-import com.dsi.ant.message.EventCode;
-import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * ChannelSearcher is used to open ANT channels that will try to connect to an available
@@ -126,8 +127,8 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                 try {
                     channel = channelRetriever.getChannel();
                     channelInitializer.initializeChannel(channel);
-                    channel.setChannelEventHandler(new AntChannelEventHandler(channel));
                     channel.open();
+                    new AntChannelEventHandler(channel);
 
                 } catch (ChannelRetriever.ChannelRetrieveException e) {
                     logErrorAndNotify("Unable to retrieve channel: " + e.getMessage(), e);
@@ -147,10 +148,20 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
         }).start();
     }
 
+    // Note two different threads are calling this method:
+    // 1) The thread created by startChannelSearchThread()
+    // 2) The thread created by the TimerTask in the AntChannelEventHandler.
+    // However, these threads do not run at the same time, so the synchronized is a precaution only.
+    private synchronized void stopChannelSearch() {
+        if (searchInProgress) {
+            searchInProgress = false;
+            listener.onChannelSearchFinished();
+        }
+    }
+
     private void logErrorAndNotify(String message, Exception e) {
-        listener.onChannelSearchFinished();
-        searchInProgress = false;
         Log.e(TAG, message);
+        stopChannelSearch();
         notifyUserChannelError(e);
     }
 
@@ -173,6 +184,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
     private class AntChannelEventHandler implements IAntChannelEventHandler {
 
         private AntChannel channel;
+        private Timer timer;
 
         /**
          * Constructor.
@@ -180,6 +192,25 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
          */
         public AntChannelEventHandler(AntChannel channel) {
             this.channel = channel;
+            timer = new Timer();
+
+            try {
+                channel.setChannelEventHandler(this);
+                startTimer();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Unable to set ANT Channel event handler: " + e.getMessage());
+                stopChannelSearch();
+            }
+        }
+
+        private void startTimer() {
+            timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    stopChannelSearch();
+                }
+            }, 1000 * 15); // 15s delay. TODO: use a constant. See com.dsi.ant.message.LowPrioritySearchTimeout
         }
 
         /**
@@ -200,26 +231,11 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                     Log.e(TAG, "Unable to clear ANT channel event handler: " + e.getMessage());
                 }
 
+                timer.cancel();
+                timer.purge();
                 listener.onChannelConnected(channel);
                 startChannelSearchThread();
-            } else if (messageType == MessageFromAntType.CHANNEL_EVENT) {
-
-                ChannelEventMessage eventMessage = new ChannelEventMessage(messageParcel);
-
-                if (isShouldTerminateSearchEvent(eventMessage.getEventCode())) {
-                    Log.i(TAG, "Channel search terminated");
-
-                    channel.release();
-                    searchInProgress = false;
-                    listener.onChannelSearchFinished();
-                }
             }
-        }
-
-        private boolean isShouldTerminateSearchEvent(EventCode eventCode) {
-            return eventCode == EventCode.RX_SEARCH_TIMEOUT ||
-                   eventCode == EventCode.CHANNEL_CLOSED ||
-                   eventCode == EventCode.RX_FAIL; // TODO: look up these codes in detail
         }
 
         // TODO: This is a debug implementation. Change later.
