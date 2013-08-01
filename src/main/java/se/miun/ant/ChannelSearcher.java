@@ -108,8 +108,8 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
      */
     public void startChannelSearch() {
         if (!searchInProgress) {
-            listener.onChannelSearchStarted();
             searchInProgress = true;
+            listener.onChannelSearchStarted();
             startChannelSearchThread();
         }
     }
@@ -127,6 +127,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                     channel = channelRetriever.getChannel();
                     channelInitializer.initializeChannel(channel);
                     channel.setChannelEventHandler(new AntChannelEventHandler(channel));
+                    channel.open();
 
                 } catch (ChannelRetriever.ChannelRetrieveException e) {
                     logErrorAndNotify("Unable to retrieve channel: " + e.getMessage(), e);
@@ -137,24 +138,18 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                 } catch (RemoteException e) {
                     logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
                     return;
+                } catch (AntCommandFailedException e) {
+                    logErrorAndNotify("Unable to open channel: " + e.getMessage(), e);
+                    return;
                 }
 
-                tryOpenChannel(channel);
             }
         }).start();
     }
 
-    private void tryOpenChannel(AntChannel channel) {
-        try {
-            channel.open();
-        } catch (RemoteException e) {
-            logErrorAndNotify("Unable to open channel: " + e.getMessage(), e);
-        } catch (AntCommandFailedException e) {
-            logErrorAndNotify("Unable to open channel: " + e.getMessage(), e);
-        }
-    }
-
     private void logErrorAndNotify(String message, Exception e) {
+        listener.onChannelSearchFinished();
+        searchInProgress = false;
         Log.e(TAG, message);
         notifyUserChannelError(e);
     }
@@ -211,14 +206,20 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
                 ChannelEventMessage eventMessage = new ChannelEventMessage(messageParcel);
 
-                if (eventMessage.getEventCode() == EventCode.RX_SEARCH_TIMEOUT) {
-                    Log.i(TAG, "Channel timeout");
+                if (isShouldTerminateSearchEvent(eventMessage.getEventCode())) {
+                    Log.i(TAG, "Channel search terminated");
 
                     channel.release();
                     searchInProgress = false;
                     listener.onChannelSearchFinished();
                 }
             }
+        }
+
+        private boolean isShouldTerminateSearchEvent(EventCode eventCode) {
+            return eventCode == EventCode.RX_SEARCH_TIMEOUT ||
+                   eventCode == EventCode.CHANNEL_CLOSED ||
+                   eventCode == EventCode.RX_FAIL; // TODO: look up these codes in detail
         }
 
         // TODO: This is a debug implementation. Change later.
