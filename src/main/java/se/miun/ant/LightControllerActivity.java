@@ -12,9 +12,6 @@ import android.widget.Toast;
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.message.fromant.DataMessage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LightControllerActivity extends ActionBarActivity
        implements ChannelDataListener,
                   ChannelListFragment.OnChannelSelectedListener,
@@ -26,10 +23,6 @@ public class LightControllerActivity extends ActionBarActivity
 
     // Used to get references to ANT channels from the ANT Radio Service.
     private ChannelSearcher channelSearcher;
-
-    private List<ChannelWrapper> channelWrappers = new ArrayList<ChannelWrapper>();
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,26 +64,23 @@ public class LightControllerActivity extends ActionBarActivity
 
     @Override
     public void onChannelConnected(final AntChannel antChannel) {
-
-        final ChannelWrapper wrapper = new ChannelWrapper(antChannel);
-        channelWrappers.add(wrapper);
-
         runOnUiThread(new Runnable() {
+
             @Override
             public void run() {
                 FragmentManager fm = getSupportFragmentManager();
                 ChannelListFragment channelListFragment =
                         (ChannelListFragment)fm.findFragmentByTag(CHANNEL_LIST_FRAGMENT_TAG);
 
+                ChannelWrapper wrapper = new ChannelWrapper(antChannel);
                 channelListFragment.addChannelWrapper(wrapper);
             }
         });
     }
 
     @Override
-    public void onChannelSelected(int channelListPosition) {
-        ChannelWrapper wrapper = channelWrappers.get(channelListPosition);
-        startChannelViewFragment(wrapper);
+    public void onChannelSelected(ChannelWrapper channelWrapper) {
+        startChannelViewFragment(channelWrapper);
     }
 
     @Override

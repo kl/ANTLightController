@@ -15,13 +15,13 @@ public class ChannelListFragment extends ListFragment {
 
 
     public interface OnChannelSelectedListener {
-        public void onChannelSelected(int listItemPosition);
+        public void onChannelSelected(ChannelWrapper channelWrapper);
     }
 
 
     private class ListItemDataListener implements ChannelWrapper.ChannelDataListener {
 
-        private ChannelWrapper channelWrapper;
+        public ChannelWrapper channelWrapper;
         private byte[] lastReceivedData;
 
         public ListItemDataListener(ChannelWrapper channelWrapper) {
@@ -44,6 +44,7 @@ public class ChannelListFragment extends ListFragment {
 
         private void notifyNewDataReceived() {
             ChannelListFragment.this.getActivity().runOnUiThread(new Runnable() {
+
                 @Override
                 public void run() {
                     channelsAdapter.notifyDataSetChanged();
@@ -87,14 +88,14 @@ public class ChannelListFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView listView, View clickedView, int position, long id) {
-        channelSelectedListener.onChannelSelected(position);
+        ChannelWrapper wrapper = itemListeners.get(position).channelWrapper;
+        channelSelectedListener.onChannelSelected(wrapper);
     }
 
     public void addChannelWrapper(ChannelWrapper channelWrapper) {
+
         if (channelWrapper.isChannelAlive()) {
-
             itemListeners.add(new ListItemDataListener(channelWrapper));
-
         }
     }
 }
