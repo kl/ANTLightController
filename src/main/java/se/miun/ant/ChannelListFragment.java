@@ -13,46 +13,9 @@ import java.util.List;
 
 public class ChannelListFragment extends ListFragment {
 
-
     public interface OnChannelSelectedListener {
         public void onChannelSelected(ChannelWrapper channelWrapper);
     }
-
-
-    private class ListItemDataListener implements ChannelWrapper.ChannelDataListener {
-
-        public ChannelWrapper channelWrapper;
-        private byte[] lastReceivedData;
-
-        public ListItemDataListener(ChannelWrapper channelWrapper) {
-            this.channelWrapper = channelWrapper;
-            this.channelWrapper.setChannelDataListener(this);
-        }
-
-        @Override
-        public void onChannelWrapperDataReceived(byte[] data, ChannelWrapper channelWrapper) {
-            if (!Arrays.equals(data, lastReceivedData)) {
-                lastReceivedData = data;
-                notifyNewDataReceived();
-            }
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(lastReceivedData[0]);
-        }
-
-        private void notifyNewDataReceived() {
-            ChannelListFragment.this.getActivity().runOnUiThread(new Runnable() {
-
-                @Override
-                public void run() {
-                    channelsAdapter.notifyDataSetChanged();
-                }
-            });
-        }
-    }
-
 
     public static final String TAG = "ANTLightController";
 
@@ -96,6 +59,52 @@ public class ChannelListFragment extends ListFragment {
 
         if (channelWrapper.isChannelAlive()) {
             itemListeners.add(new ListItemDataListener(channelWrapper));
+        }
+    }
+
+
+    private class ListItemDataListener implements ChannelWrapper.ChannelDataListener {
+
+        public ChannelWrapper channelWrapper;
+        private byte[] lastReceivedData;
+
+        public ListItemDataListener(ChannelWrapper channelWrapper) {
+            this.channelWrapper = channelWrapper;
+            this.channelWrapper.setChannelDataListener(this);
+        }
+
+        @Override
+        public void onChannelDataReceived(byte[] data, ChannelWrapper channelWrapper) {
+            if (!Arrays.equals(data, lastReceivedData)) {
+                lastReceivedData = data;
+                notifyDataSetChanged();
+            }
+        }
+
+        @Override
+        public void onChannelConnectionClosed() {
+            itemListeners.remove(this);
+            channelWrapper.releaseChannel();
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public String toString() {
+            if (lastReceivedData != null && lastReceivedData.length > 0) {  // TODO: null pointers...investigate this
+                return String.valueOf(lastReceivedData[0]);
+            } else {
+                return "";
+            }
+        }
+
+        private void notifyDataSetChanged() {
+            ChannelListFragment.this.getActivity().runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    channelsAdapter.notifyDataSetChanged();
+                }
+            });
         }
     }
 }
