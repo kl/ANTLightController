@@ -23,11 +23,11 @@ import com.dsi.ant.message.ipc.AntMessageParcel;
 public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvailableListener {
 
     /**
-     * The OnChannelConnectedListener must be implemented by a client (client to this class)
+     * The OnChannelSearchStatusListener must be implemented by a client (client to this class)
      * that wishes to be notified when an ANT channel has been successfully created, opened and
      * connected.
      */
-    public interface OnChannelConnectedListener {
+    public interface OnChannelSearchStatusListener {
         /**
          * Called when the channel has completed its initialization and it is safe to call
          * startChannelSearch().
@@ -39,12 +39,22 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
          * @param antChannel the connected ANT channel.
          */
         public void onChannelConnected(AntChannel antChannel);
+
+        /**
+         * Called when a channel search has been started.
+         */
+        public void onChannelSearchStarted();
+
+        /**
+         * Called when an ongoing channel search has finished.
+         */
+        public void onChannelSearchFinished();
     }
 
     public static final String TAG = "ANTLightController";
 
     private Activity activity;                      // Activity used for Toast.
-    private OnChannelConnectedListener listener;    // Is notified when a channel has connected.
+    private OnChannelSearchStatusListener listener;    // Is notified when a channel has connected.
     private ChannelRetriever channelRetriever;      // Used to get channels from the ANT system.
     private ChannelInitializer channelInitializer;  // Used to set default channel parameters.
 
@@ -70,7 +80,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
      * @param listener this object will be notified when an ANT slave channel has been
      *                 successfully created, opened and connected.
      */
-    public ChannelSearcher(Activity activity, OnChannelConnectedListener listener) {
+    public ChannelSearcher(Activity activity, OnChannelSearchStatusListener listener) {
         this(activity);
         setOnChannelConnectedListener(listener);
     }
@@ -85,10 +95,10 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
     }
 
     /**
-     * Sets the OnChannelConnectedListener that is notified when a channel has connected.
+     * Sets the OnChannelSearchStatusListener that is notified when a channel has connected.
      * @param listener the listener that will be notified.
      */
-    public void setOnChannelConnectedListener(OnChannelConnectedListener listener) {
+    public void setOnChannelConnectedListener(OnChannelSearchStatusListener listener) {
         this.listener = listener;
     }
 
@@ -98,8 +108,9 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
      */
     public void startChannelSearch() {
         if (!searchInProgress) {
-            startChannelSearchThread();
+            listener.onChannelSearchStarted();
             searchInProgress = true;
+            startChannelSearchThread();
         }
     }
 
@@ -205,6 +216,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
                     channel.release();
                     searchInProgress = false;
+                    listener.onChannelSearchFinished();
                 }
             }
         }

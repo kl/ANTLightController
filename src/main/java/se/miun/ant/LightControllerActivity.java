@@ -1,12 +1,18 @@
 package se.miun.ant;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dsi.ant.channel.AntChannel;
@@ -15,7 +21,7 @@ import com.dsi.ant.message.fromant.DataMessage;
 public class LightControllerActivity extends ActionBarActivity
        implements ChannelDataListener,
                   ChannelListFragment.OnChannelSelectedListener,
-                  ChannelSearcher.OnChannelConnectedListener {
+        ChannelSearcher.OnChannelSearchStatusListener {
 
     public static final String TAG = "ANTLightController";
 
@@ -23,6 +29,8 @@ public class LightControllerActivity extends ActionBarActivity
 
     // Used to get references to ANT channels from the ANT Radio Service.
     private ChannelSearcher channelSearcher;
+
+    private MenuItem refreshMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +47,7 @@ public class LightControllerActivity extends ActionBarActivity
         // Inflate the menu items for use in the action bar.
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.light_control, menu);
+        refreshMenuItem = menu.findItem(R.id.action_refresh);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -60,6 +69,38 @@ public class LightControllerActivity extends ActionBarActivity
     @Override
     public void onChannelSearcherInitialized() {
         //channelSearcher.startChannelSearch();
+    }
+
+    @Override
+    public void onChannelSearchStarted() {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                ImageView refreshIcon = (ImageView)inflater.inflate(R.layout.refresh_action_view, null);
+
+                Animation rotation = AnimationUtils.loadAnimation(LightControllerActivity.this,
+                                                                  R.anim.refresh_rotation);
+
+                rotation.setRepeatCount(Animation.INFINITE);
+                refreshIcon.startAnimation(rotation);
+
+                MenuItemCompat.setActionView(refreshMenuItem, refreshIcon);
+            }
+        });
+    }
+
+    @Override
+    public void onChannelSearchFinished() {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                MenuItemCompat.getActionView(refreshMenuItem).clearAnimation();
+                MenuItemCompat.setActionView(refreshMenuItem, null);
+            }
+        });
     }
 
     @Override
