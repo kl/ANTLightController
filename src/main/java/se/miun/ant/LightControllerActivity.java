@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.message.fromant.DataMessage;
 
 public class LightControllerActivity extends ActionBarActivity
        implements ChannelDataListener,
@@ -212,24 +211,6 @@ public class LightControllerActivity extends ActionBarActivity
         }
     }
     */
-
-    private byte[] makeBroadcastData(byte intensity) {
-        // TODO: implement the real protocol.
-
-        // The payload is a byte array that is DataMessage.LENGTH_STANDARD_PAYLOAD (default 8) long.
-        byte[] data = new byte[DataMessage.LENGTH_STANDARD_PAYLOAD];
-
-        // Set the first byte to the intensity value.
-        data[0] = intensity;
-
-        // Set the remaining bytes to 0.
-        for (int i = 1; i < DataMessage.LENGTH_STANDARD_PAYLOAD; i++) {
-            data[i] = 0;
-        }
-
-        return data;
-    }
-
 
 }
 

@@ -11,6 +11,7 @@ import com.dsi.ant.message.EventCode;
 import com.dsi.ant.message.fromant.BroadcastDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.ChannelStatusMessage;
+import com.dsi.ant.message.fromant.DataMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
@@ -23,6 +24,10 @@ public class ChannelWrapper implements IAntChannelEventHandler {
 
     public static final String TAG = "ANTLightController";
 
+    private static final int RX_FAILS_ALLOWED_IN_ROW = 3;
+
+    private int rx_fails = 0;
+
     private AntChannel antChannel;
     private ChannelDataListener listener;
 
@@ -32,6 +37,14 @@ public class ChannelWrapper implements IAntChannelEventHandler {
             antChannel.setChannelEventHandler(this);
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setBroadcastData(byte data) {
+        try {
+            antChannel.setBroadcastData(makeBroadcastData(data));
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error setting broadcast data: " + e.getMessage());
         }
     }
 
@@ -77,6 +90,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
         if (listener == null) return;
 
         if (messageType == MessageFromAntType.BROADCAST_DATA) {
+            rx_fails = 0;
             BroadcastDataMessage message = new BroadcastDataMessage(messageParcel);
             byte[] messageData = message.getPayload();
             if (messageData != null) listener.onChannelDataReceived(messageData, this);
@@ -86,8 +100,12 @@ public class ChannelWrapper implements IAntChannelEventHandler {
             ChannelEventMessage eventMessage = new ChannelEventMessage(messageParcel);
             EventCode code = eventMessage.getEventCode();
 
-            if (code == EventCode.CHANNEL_CLOSED || code == EventCode.RX_FAIL) {
+            if (code == EventCode.CHANNEL_CLOSED ) {
                 listener.onChannelConnectionClosed();
+            } else if (code == EventCode.RX_FAIL) {
+                Log.i(TAG, "RX_FAIL");
+                rx_fails += 1;
+                if (rx_fails >= RX_FAILS_ALLOWED_IN_ROW) listener.onChannelConnectionClosed();
             }
         }
     }
@@ -101,4 +119,32 @@ public class ChannelWrapper implements IAntChannelEventHandler {
     public String toString() {
         return antChannel.toString();
     }
+
+    private byte[] makeBroadcastData(byte intensity) {
+        // TODO: implement the real protocol.
+
+        // The payload is a byte array that is DataMessage.LENGTH_STANDARD_PAYLOAD (default 8) long.
+        byte[] data = new byte[DataMessage.LENGTH_STANDARD_PAYLOAD];
+
+        // Set the first byte to the intensity value.
+        data[0] = intensity;
+
+        // Set the remaining bytes to 0.
+        for (int i = 1; i < DataMessage.LENGTH_STANDARD_PAYLOAD; i++) {
+            data[i] = 0;
+        }
+
+        return data;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -10,5 +10,7 @@
     <string name="light_intensity_label">LIGHT INTENSITY</string>
     <string name="reported_intensity_label">REPORTED LIGHT INTENSITY</string>
 
+    <string name="channel_open_image_description">Show channel details</string>
+
 
 </resources>

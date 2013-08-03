@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:paddingTop="10dp"
+              android:paddingBottom="10dp" >
+
+    <TextView android:id="@+id/channel_intensity_view"
+              android:layout_height="wrap_content"
+              android:layout_width="0dp"
+              android:layout_weight="15"
+              android:layout_gravity="center_vertical"
+              android:paddingLeft="10dp"
+              android:text="test" />
+
+    <SeekBar android:id="@+id/channel_intensity_seekbar"
+             android:layout_height="wrap_content"
+             android:layout_width="0dp"
+             android:layout_weight="60"
+             android:layout_gravity="center_vertical"
+             android:paddingRight="10dp"/>
+
+    <ImageButton android:id="@+id/channel_open_imagebutton"
+               android:layout_height="wrap_content"
+               android:layout_width="0dp"
+               android:layout_weight="10"
+               android:layout_gravity="center_vertical"
+               android:paddingLeft="20dp"
+               android:src="@drawable/action_open"
+               android:contentDescription="@string/channel_open_image_description"
+               style="@style/Widget.AppCompat.ActionButton" />
+
+</LinearLayout>
