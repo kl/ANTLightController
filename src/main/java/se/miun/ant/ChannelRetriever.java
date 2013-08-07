@@ -43,7 +43,7 @@ public class ChannelRetriever implements ServiceConnection {
         }
 
         try {
-            return channelProvider.acquireChannel(context, PredefinedNetwork.PUBLIC);
+            return channelProvider.acquireChannel(context, PredefinedNetwork.ANT_PLUS);
         } catch (ChannelNotAvailableException e) {
             throw new ChannelRetrieveException(e.getMessage(), e);
         } catch (RemoteException e) {

@@ -22,5 +22,4 @@ public class ChannelViewFragment extends Fragment {
         text.setText(channelWrapper.toString());
         return root;
     }
-
 }

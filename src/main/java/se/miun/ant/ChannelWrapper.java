@@ -40,9 +40,9 @@ public class ChannelWrapper implements IAntChannelEventHandler {
         }
     }
 
-    public void setBroadcastData(byte data) {
+    public void setBroadcastData(byte[] data) {
         try {
-            antChannel.setBroadcastData(makeBroadcastData(data));
+            antChannel.setBroadcastData(data);
         } catch (RemoteException e) {
             Log.e(TAG, "Error setting broadcast data: " + e.getMessage());
         }

@@ -19,7 +19,7 @@ import com.dsi.ant.channel.AntChannel;
 
 public class LightControllerActivity extends ActionBarActivity
        implements ChannelDataListener,
-                  ChannelListFragment.OnChannelSelectedListener,
+        ChannelListFragment.ChannelSelectedListener,
         ChannelSearcher.OnChannelSearchStatusListener {
 
     public static final String TAG = "ANTLightController";
@@ -28,11 +28,14 @@ public class LightControllerActivity extends ActionBarActivity
 
     // Used to get references to ANT channels from the ANT Radio Service.
     private ChannelSearcher channelSearcher;
+    private AntProtocolHelper messageEncoder;
 
     private MenuItem refreshMenuItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        GlobalState.setApplicationContext(this.getApplicationContext());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_light_control);
 
@@ -52,6 +55,7 @@ public class LightControllerActivity extends ActionBarActivity
 
     private void initializeComponents() {
         channelSearcher = new ChannelSearcher(this, this);
+        messageEncoder = new AntProtocolHelper();
     }
 
     private void initializeUI() {

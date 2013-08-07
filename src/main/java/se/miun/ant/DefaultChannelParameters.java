@@ -8,9 +8,9 @@ public class DefaultChannelParameters {
     public static final ChannelType TYPE = ChannelType.BIDIRECTIONAL_SLAVE;
 
     public static final int DEVICE_TYPE = 16;
-    public static final int TRANSMISSION_TYPE = 1;
-    public static final int PERIOD = 32768; // 1 Hz
-    public static final int FREQUENCY = 77;
+    public static final int TRANSMISSION_TYPE = 0;
+    public static final int PERIOD = 8192;
+    public static final int FREQUENCY = 57;
 
     // note: the slave sets id to zero to signify a wildcard value.
     public static ChannelId getChannelId() {

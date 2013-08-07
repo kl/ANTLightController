@@ -27,9 +27,9 @@
                android:layout_width="0dp"
                android:layout_weight="10"
                android:layout_gravity="center_vertical"
-               android:paddingLeft="20dp"
+               android:paddingLeft="10dp"
                android:src="@drawable/action_open"
                android:contentDescription="@string/channel_open_image_description"
-               style="@style/Widget.AppCompat.ActionButton" />
+               android:background="@null" />
 
 </LinearLayout>
