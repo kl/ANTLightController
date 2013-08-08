@@ -20,7 +20,6 @@ public class AntProtocolHelper {
 
         byte commandNumber = (byte)((isIncrement) ? INCREASE_VOLUME_COMMAND : DECREASE_VOLUME_COMMAND);
 
-
         return new byte[] {
             AUDIO_COMMAND_DATA_PAGE,
             (byte)0xFF,
@@ -28,7 +27,7 @@ public class AntProtocolHelper {
             (byte)0xFF,
             (byte)0xFF,
             (byte)0xFF,
-            roundedDifferencePercent,
+            (byte)toVolumePercent,//roundedDifferencePercent,
             commandNumber
         };
     }

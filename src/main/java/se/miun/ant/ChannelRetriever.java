@@ -31,10 +31,14 @@ public class ChannelRetriever implements ServiceConnection {
     private AntChannelProvider channelProvider;
     private OnChannelProviderAvailableListener listener;
 
-    public ChannelRetriever(Context context, OnChannelProviderAvailableListener listener) {
+    public ChannelRetriever(Context context) {
         this.context = context.getApplicationContext();
-        this.listener = listener;
         AntService.bindService(context, this);
+    }
+
+    public void setOnChannelProviderAvailableListener(OnChannelProviderAvailableListener listener) {
+        this.listener = listener;
+        notifyListenerIfProviderAvailable();
     }
 
     public AntChannel getChannel() throws ChannelRetrieveException {
@@ -55,9 +59,10 @@ public class ChannelRetriever implements ServiceConnection {
     public void onServiceConnected(ComponentName componentName, IBinder binder) {
         antService = new AntService(binder);
 
+
         try {
             channelProvider = antService.getChannelProvider();
-            listener.onChannelProviderAvailable();
+            notifyListenerIfProviderAvailable();
         } catch (RemoteException e) {
             Log.e(TAG, e.getMessage());
         }
@@ -65,5 +70,11 @@ public class ChannelRetriever implements ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {}
+
+    private void notifyListenerIfProviderAvailable() {
+        if (listener != null && channelProvider != null) {
+            listener.onChannelProviderAvailable();
+        }
+    }
 }
 

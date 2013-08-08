@@ -69,10 +69,13 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
      * @param activity the Activity that is needed for Toast notifications.
      */
     public ChannelSearcher(Activity activity) {
-        this.activity      = activity;
-        channelRetriever   = new ChannelRetriever(activity, this);
+        this.activity = activity;
+
+        channelRetriever = GlobalState.getInstance().getChannelRetriever();
+        channelRetriever.setOnChannelProviderAvailableListener(this);
+
         channelInitializer = new ChannelInitializer();
-        searchInProgress   = false;
+        searchInProgress = false;
     }
 
     /**
@@ -134,19 +137,15 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                 } catch (ChannelRetriever.ChannelRetrieveException e) {
                     logErrorAndNotify("Unable to retrieve channel: " + e.getMessage(), e);
                     releaseChannel(channel);
-                    return;
                 } catch (ChannelInitializer.ChannelInitializationException e) {
                     logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
                     releaseChannel(channel);
-                    return;
                 } catch (RemoteException e) {
                     logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
                     releaseChannel(channel);
-                    return;
                 } catch (AntCommandFailedException e) {
                     logErrorAndNotify("Unable to open channel: " + e.getMessage(), e);
                     releaseChannel(channel);
-                    return;
                 }
 
             }

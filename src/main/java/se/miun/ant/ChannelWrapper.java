@@ -24,7 +24,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
 
     public static final String TAG = "ANTLightController";
 
-    private static final int RX_FAILS_ALLOWED_IN_ROW = 3;
+    private static final int RX_FAILS_ALLOWED_IN_ROW = 5;
 
     private int rx_fails = 0;
 
@@ -63,6 +63,43 @@ public class ChannelWrapper implements IAntChannelEventHandler {
         } catch (AntCommandFailedException e) {
             Log.e(TAG, "Error getting channel status message: " + e.getMessage());
             return false;
+        }
+    }
+
+    public void closeChannel() {
+        // TODO: trying to close the channel causes error message 0x15 (invalid channel state) why?
+        /*
+        try {
+            antChannel.close();
+        } catch (RemoteException e) {
+            Log.e(GlobalState.LOG_TAG, "Could not close channel: " + e.getMessage());
+        } catch (AntCommandFailedException e) {
+            Log.e(GlobalState.LOG_TAG, "Could not close channel: " + e.getMessage());
+        }
+        */
+
+        try {
+            antChannel.clearChannelEventHandler();
+        } catch (RemoteException e) {
+            Log.e(GlobalState.LOG_TAG, "Could not clear channel event handler: " + e.getMessage());
+        }
+    }
+
+    public void openChannel() {
+        /*
+        try {
+            antChannel.open();
+        } catch (RemoteException e) {
+            Log.e(GlobalState.LOG_TAG, "Could not open channel: " + e.getMessage());
+        } catch (AntCommandFailedException e) {
+            Log.e(GlobalState.LOG_TAG, "Could not open channel: " + e.getMessage());
+        }
+        */
+
+        try {
+            antChannel.setChannelEventHandler(this);
+        } catch (RemoteException e) {
+            Log.e(GlobalState.LOG_TAG, "Could not set channel event handler: " + e.getMessage());
         }
     }
 

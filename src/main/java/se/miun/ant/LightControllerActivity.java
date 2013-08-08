@@ -28,7 +28,6 @@ public class LightControllerActivity extends ActionBarActivity
 
     // Used to get references to ANT channels from the ANT Radio Service.
     private ChannelSearcher channelSearcher;
-    private AntProtocolHelper messageEncoder;
 
     private MenuItem refreshMenuItem;
 
@@ -53,20 +52,39 @@ public class LightControllerActivity extends ActionBarActivity
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        GlobalState.getInstance().closeChannels();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        GlobalState.getInstance().openChannels();
+    }
+
     private void initializeComponents() {
         channelSearcher = new ChannelSearcher(this, this);
-        messageEncoder = new AntProtocolHelper();
     }
 
     private void initializeUI() {
-        ChannelListFragment channelViewFragment = new ChannelListFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        FragmentManager fm = getSupportFragmentManager();
 
-        transaction.add(R.id.channel_list_fragment_container,
-                        channelViewFragment,
-                        CHANNEL_LIST_FRAGMENT_TAG);
+        ChannelListFragment channelListFragment =
+                (ChannelListFragment)fm.findFragmentByTag(CHANNEL_LIST_FRAGMENT_TAG);
 
-        transaction.commit();
+        if (channelListFragment == null) {
+            channelListFragment = new ChannelListFragment();
+
+            FragmentTransaction transaction = fm.beginTransaction();
+
+            transaction.add(R.id.channel_list_fragment_container,
+                            channelListFragment,
+                            CHANNEL_LIST_FRAGMENT_TAG);
+
+            transaction.commit();
+        }
     }
 
     @Override

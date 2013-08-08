@@ -54,6 +54,18 @@ public class ChannelList  {
         }
     }
 
+    public void closeChannels() {
+        for (ListItemState state : listItemStates) {
+            state.channelWrapper.closeChannel();
+        }
+    }
+
+    public void openChannels() {
+        for (ListItemState state : listItemStates) {
+            state.channelWrapper.openChannel();
+        }
+    }
+
     private void notifyDataSetChanged() {
         uiThreadHandler.post(new Runnable() {
 

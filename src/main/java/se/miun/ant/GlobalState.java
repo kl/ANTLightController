@@ -8,14 +8,20 @@ public class GlobalState {
     public static final String LOG_TAG = "ANTLightController";
 
     public static void setApplicationContext(Context context) {
-        applicationContext = context;
+        if (applicationContext == null) applicationContext = context;
     }
 
-    private static Context applicationContext;
+    // TODO: should be private. Only public for debugging.
+    public static Context applicationContext;
 
     private static GlobalState instance;
 
+    private ChannelRetriever channelRetriever;
     private ChannelList channelList;
+
+    public ChannelRetriever getChannelRetriever() {
+        return channelRetriever;
+    }
 
     public ChannelList getChannelList() {
         return channelList;
@@ -26,7 +32,16 @@ public class GlobalState {
         return instance;
     }
 
-    public GlobalState() {
+    private GlobalState() {
+        channelRetriever = new ChannelRetriever(applicationContext);
         channelList = new ChannelList(applicationContext);
+    }
+
+    public void closeChannels() {
+        channelList.closeChannels();
+    }
+
+    public void openChannels() {
+        channelList.openChannels();
     }
 }
