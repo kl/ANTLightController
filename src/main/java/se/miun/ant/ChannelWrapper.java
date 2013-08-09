@@ -11,7 +11,6 @@ import com.dsi.ant.message.EventCode;
 import com.dsi.ant.message.fromant.BroadcastDataMessage;
 import com.dsi.ant.message.fromant.ChannelEventMessage;
 import com.dsi.ant.message.fromant.ChannelStatusMessage;
-import com.dsi.ant.message.fromant.DataMessage;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
@@ -24,7 +23,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
 
     public static final String TAG = "ANTLightController";
 
-    private static final int RX_FAILS_ALLOWED_IN_ROW = 5;
+    private static final int RX_FAILS_ALLOWED_IN_ROW = 1;
 
     private int rx_fails = 0;
 
@@ -41,6 +40,8 @@ public class ChannelWrapper implements IAntChannelEventHandler {
     }
 
     public void setBroadcastData(byte[] data) {
+        if (antChannel == null) return;
+
         try {
             antChannel.setBroadcastData(data);
         } catch (RemoteException e) {
@@ -149,29 +150,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
 
     @Override
     public void onChannelDeath() {
-
-    }
-
-    @Override
-    public String toString() {
-        return antChannel.toString();
-    }
-
-    private byte[] makeBroadcastData(byte intensity) {
-        // TODO: implement the real protocol.
-
-        // The payload is a byte array that is DataMessage.LENGTH_STANDARD_PAYLOAD (default 8) long.
-        byte[] data = new byte[DataMessage.LENGTH_STANDARD_PAYLOAD];
-
-        // Set the first byte to the intensity value.
-        data[0] = intensity;
-
-        // Set the remaining bytes to 0.
-        for (int i = 1; i < DataMessage.LENGTH_STANDARD_PAYLOAD; i++) {
-            data[i] = 0;
-        }
-
-        return data;
+        Log.i(GlobalState.LOG_TAG, "onChannelDeath called from ChannelWrapper#" + hashCode());
     }
 }
 

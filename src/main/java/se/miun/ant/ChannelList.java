@@ -20,7 +20,7 @@ public class ChannelList  {
 
     public interface ChannelStateListener {
         public void onChannelSelected(ChannelWrapper channelWrapper);
-        public void onLightIntensityDataUpdated(List<Integer> intensityValues);
+        public void onLightIntensityDataUpdated(int[] intensityValues);
     }
 
     private ChannelStateListener channelStateListener;
@@ -93,9 +93,9 @@ public class ChannelList  {
                 convertView = inflater.inflate(R.layout.channel_list_view, null);
             }
 
-            TextView intensityView = null;
-            SeekBar intensityBar = null;
-            ImageButton openButton = null;
+            TextView intensityView;
+            SeekBar intensityBar;
+            ImageButton openButton;
 
             ViewHolder holder = (ViewHolder)convertView.getTag();
 
@@ -110,7 +110,16 @@ public class ChannelList  {
                 convertView.setTag(new ViewHolder(intensityView, intensityBar, openButton));
             }
 
-            ListItemState stateAtPosition = listItemStates.get(position);
+            ListItemState stateAtPosition;
+
+            try {
+                stateAtPosition = listItemStates.get(position);
+            } catch (IndexOutOfBoundsException e) {
+                // This can happen if a ListItemState gets removed from listItemStates after
+                // the start of this method but before the start of the try block.
+                return convertView;
+            }
+
             stateAtPosition.setIntensityBar(intensityBar);
             stateAtPosition.setOpenButton(openButton);
 
@@ -206,7 +215,7 @@ public class ChannelList  {
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             sliderValue = progress;
 
-            byte[] payload = AntProtocolHelper.makeVolumePayload(lightIntensity, sliderValue);
+            byte[] payload = AntProtocolHelper.makeIntensityPayload(sliderValue);
             channelWrapper.setBroadcastData(payload);
         }
 
@@ -225,11 +234,11 @@ public class ChannelList  {
             channelStateListener.onChannelSelected(channelWrapper);
         }
 
-        private List<Integer> getIntensityValues() {
-            List<Integer> intensityValues = new ArrayList<Integer>();
+        private int[] getIntensityValues() {
+            int[] intensityValues = new int[listItemStates.size()];
 
-            for (ListItemState itemState : listItemStates) {
-                intensityValues.add(itemState.lightIntensity);
+            for (int i = 0; i < listItemStates.size(); i++) {
+                intensityValues[i] = listItemStates.get(i).lightIntensity;
             }
 
             return intensityValues;
