@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.dsi.ant.channel.AntChannel;
 
 public class LightControllerActivity extends ActionBarActivity
-       implements ChannelDataListener,
+       implements
         ChannelListFragment.ChannelSelectedListener,
         ChannelSearcher.OnChannelSearchStatusListener {
 
@@ -177,7 +177,6 @@ public class LightControllerActivity extends ActionBarActivity
     }
 
     private void refreshAntChannels() {
-        // TODO: implement this
         channelSearcher.startChannelSearch();
     }
 
@@ -197,17 +196,6 @@ public class LightControllerActivity extends ActionBarActivity
     }
     */
 
-
-    @Override
-    public void onBroadcastData(final byte[] data) {
-        // This method is called when the channel receives a broadcast data packet.
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //updateIntensityView(data);
-            }
-        });
-    }
 
     /*
     private void updateIntensityView(byte[] data) {

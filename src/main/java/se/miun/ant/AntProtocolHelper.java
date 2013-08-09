@@ -25,7 +25,7 @@ public class AntProtocolHelper {
     }
 
     public static boolean isAudioUpdatePayload(byte[] payload) {
-        return payload[0] == AUDIO_UPDATE_DATA_PAGE;
+        return (payload != null && payload[0] == AUDIO_UPDATE_DATA_PAGE);
     }
 
     public static int decodeVolumeValue(byte[] payload) throws VolumeValueUnknownException {

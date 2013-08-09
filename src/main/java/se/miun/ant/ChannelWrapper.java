@@ -23,7 +23,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
 
     public static final String TAG = "ANTLightController";
 
-    private static final int RX_FAILS_ALLOWED_IN_ROW = 1;
+    private static final int RX_FAILS_ALLOWED_IN_ROW = 5;
 
     private int rx_fails = 0;
 
@@ -130,8 +130,8 @@ public class ChannelWrapper implements IAntChannelEventHandler {
         if (messageType == MessageFromAntType.BROADCAST_DATA) {
             rx_fails = 0;
             BroadcastDataMessage message = new BroadcastDataMessage(messageParcel);
-            byte[] messageData = message.getPayload();
-            if (messageData != null) listener.onChannelDataReceived(messageData, this);
+            byte[] broadcastMessageData = message.getPayload();
+            if (broadcastMessageData != null) listener.onChannelDataReceived(broadcastMessageData, this);
         }
 
         if (messageType == MessageFromAntType.CHANNEL_EVENT) {

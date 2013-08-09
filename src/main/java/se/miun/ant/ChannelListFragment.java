@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ChannelListFragment extends ListFragment implements ChannelList.ChannelStateListener {
+public class ChannelListFragment extends ListFragment implements ChannelList.ChannelListener {
 
     public interface ChannelSelectedListener {
         public void onChannelSelected(ChannelWrapper channelWrapper);
@@ -22,7 +22,7 @@ public class ChannelListFragment extends ListFragment implements ChannelList.Cha
         super.onActivityCreated(savedInstanceState);
 
         channelList = GlobalState.getInstance().getChannelList();
-        channelList.setChannelStateListener(this);
+        channelList.setChannelListener(this);
 
         listView = getListView();
         listView.setItemsCanFocus(false);
