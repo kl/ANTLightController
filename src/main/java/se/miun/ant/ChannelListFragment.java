@@ -24,6 +24,7 @@ public class ChannelListFragment extends ListFragment implements ChannelList.Cha
         channelList = GlobalState.getInstance().getChannelList();
         channelList.setChannelListener(this);
 
+        setEmptyText(getString(R.string.channel_list_empty_text));
         listView = getListView();
         listView.setItemsCanFocus(false);
         setListAdapter(channelList.getChannelAdapter());

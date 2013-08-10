@@ -12,5 +12,7 @@
 
     <string name="channel_open_image_description">Show channel details</string>
 
+    <string name="channel_list_empty_text">"No ANT channels connected\nPress the refresh button to search"</string>
+
 
 </resources>
