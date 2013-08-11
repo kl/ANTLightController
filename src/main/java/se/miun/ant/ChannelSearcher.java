@@ -1,6 +1,8 @@
 package se.miun.ant;
 
-import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
@@ -54,10 +56,11 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
     public static final String TAG = "ANTLightController";
 
-    private Activity activity;                      // Activity used for Toast.
+    private Context context;                        // Context used for Toast.
     private OnChannelSearchStatusListener listener; // Is notified when a channel has connected.
     private ChannelRetriever channelRetriever;      // Used to get channels from the ANT system.
     private ChannelInitializer channelInitializer;  // Used to set default channel parameters.
+    private Handler uiThreadHandler;                // Used to post runnables on the UI thread.
 
     // Set to true when a search is in progress, otherwise set to false.
     // A search is in progress from the moment a channel search is initialized until there
@@ -66,26 +69,27 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
     /**
      * Constructor.
-     * @param activity the Activity that is needed for Toast notifications.
+     * @param context the Activity that is needed for Toast notifications.
      */
-    public ChannelSearcher(Activity activity) {
-        this.activity = activity;
+    public ChannelSearcher(Context context) {
+        this.context = context;
+        uiThreadHandler = new Handler(Looper.getMainLooper());
 
         channelRetriever = GlobalState.getInstance().getChannelRetriever();
         channelRetriever.setOnChannelProviderAvailableListener(this);
 
-        channelInitializer = new ChannelInitializer();
+        channelInitializer = new ChannelInitializer(context);
         searchInProgress = false;
     }
 
     /**
      * Constructor.
-     * @param activity the Activity that is needed for Toast notifications.
+     * @param context the Activity that is needed for Toast notifications.
      * @param listener this object will be notified when an ANT slave channel has been
      *                 successfully created, opened and connected.
      */
-    public ChannelSearcher(Activity activity, OnChannelSearchStatusListener listener) {
-        this(activity);
+    public ChannelSearcher(Context context, OnChannelSearchStatusListener listener) {
+        this(context);
         setOnChannelConnectedListener(listener);
     }
 
@@ -118,8 +122,10 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
         }
     }
 
+    //
     // Starts the thread that runs a channel search. The thread will retrieve, initialize and open
     // one ANT channel and then exit.
+    //
     private void startChannelSearchThread() {
         new Thread(new Runnable() {
 
@@ -177,11 +183,11 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
     }
 
     private void notifyUserChannelError(final Exception e) {
-        activity.runOnUiThread(new Runnable() {
+        uiThreadHandler.post(new Runnable() {
 
             @Override
             public void run() {
-                Toast.makeText(activity,
+                Toast.makeText(context,
                         "Error opening ANT channel: " + e.getMessage() + "\nPlease try again.",
                         Toast.LENGTH_LONG).show();
             }
@@ -252,13 +258,13 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
         // TODO: This is a debug implementation. Change later.
         @Override public void onChannelDeath() {
-            activity.runOnUiThread(new Runnable() {
+            uiThreadHandler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    Toast.makeText(activity,
-                                   "onChannelDeath() called",
-                                   Toast.LENGTH_LONG).show();
+                    Toast.makeText(context,
+                            "onChannelDeath() called",
+                            Toast.LENGTH_LONG).show();
                 }
             });
         }

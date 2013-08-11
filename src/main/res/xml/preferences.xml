@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference android:key="@string/pref_device_type_key"
+                        android:title="@string/pref_device_type"
+                        android:summary="@string/pref_device_type_summary"
+                        android:defaultValue="@string/pref_device_type_default"
+                        android:inputType="numberDecimal" />
+
+    <EditTextPreference android:key="@string/pref_transmission_type_key"
+                        android:title="@string/pref_transmission_type"
+                        android:summary="@string/pref_transmission_type_summary"
+                        android:defaultValue="@string/pref_transmission_type_default"
+                        android:inputType="numberDecimal" />
+
+    <EditTextPreference android:key="@string/pref_period_key"
+                        android:title="@string/pref_period"
+                        android:summary="@string/pref_period_summary"
+                        android:defaultValue="@string/pref_period_default"
+                        android:inputType="numberDecimal" />
+
+    <EditTextPreference android:key="@string/pref_frequency_key"
+                        android:title="@string/pref_frequency"
+                        android:summary="@string/pref_frequency_summary"
+                        android:defaultValue="@string/pref_frequency_default"
+                        android:inputType="numberDecimal" />
+
+</PreferenceScreen>
+

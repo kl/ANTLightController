@@ -13,6 +13,20 @@
     <string name="channel_open_image_description">Show channel details</string>
 
     <string name="channel_list_empty_text">"No ANT channels connected\nPress the refresh button to search"</string>
+    <string name="pref_device_type">Device type</string>
+    <string name="pref_device_type_summary">The ANT channel device type</string>
+
+    <string name="settings_label">Settings</string>
+    <string name="pref_transmission_type">Transmission type</string>
+    <string name="pref_transmission_type_summary">The ANT channel transmission type</string>
+
+    <string name="pref_period">Period</string>
+    <string name="pref_period_summary">The ANT channel period</string>
+
+    <string name="pref_frequency">Frequency</string>
+    <string name="pref_frequency_summary">The ANT channel frequency</string>
+
+    <string name="action_restore_defaults">Restore defaults</string>
 
 
 </resources>

@@ -1,7 +1,9 @@
 package se.miun.ant;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
@@ -13,7 +15,6 @@ import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.dsi.ant.channel.AntChannel;
 
@@ -33,10 +34,11 @@ public class LightControllerActivity extends ActionBarActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        GlobalState.setApplicationContext(this.getApplicationContext());
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_light_control);
+
+        GlobalState.setApplicationContext(this.getApplicationContext());
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         initializeUI();
         initializeComponents();
@@ -173,7 +175,9 @@ public class LightControllerActivity extends ActionBarActivity
 
     private void openSettings() {
         // TODO: implement this
-        Toast.makeText(this, "Settings pressed", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, "Settings pressed", Toast.LENGTH_LONG).show();
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        startActivity(settingsIntent);
     }
 
     private void refreshAntChannels() {
