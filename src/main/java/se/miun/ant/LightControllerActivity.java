@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.dsi.ant.channel.AntChannel;
 
@@ -122,6 +123,21 @@ public class LightControllerActivity extends ActionBarActivity
             public void run() {
                 MenuItemCompat.getActionView(refreshMenuItem).clearAnimation();
                 MenuItemCompat.setActionView(refreshMenuItem, null);
+            }
+        });
+    }
+
+    @Override
+    public void onNoChannelsAvailable() {
+        final Context context = this;
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                Toast.makeText(context,
+                               getString(R.string.no_ant_channels_available),
+                               Toast.LENGTH_LONG).show();
             }
         });
     }

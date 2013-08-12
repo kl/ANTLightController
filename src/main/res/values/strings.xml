@@ -27,6 +27,7 @@
     <string name="pref_frequency_summary">The ANT channel frequency</string>
 
     <string name="action_restore_defaults">Restore defaults</string>
+    <string name="no_ant_channels_available">All ANT channels are already in use.</string>
 
 
 </resources>
