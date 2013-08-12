@@ -55,6 +55,18 @@ public class ChannelRetriever implements ServiceConnection {
         }
     }
 
+    public int getNumberOfChannelsAvailable() throws ChannelRetrieveException {
+        if (channelProvider == null) {
+            throw new ChannelRetrieveException("ANT Channel Provider has not been initialized.");
+        }
+
+        try {
+            return channelProvider.getNumChannelsAvailable();
+        } catch (RemoteException e) {
+            throw new ChannelRetrieveException(e.getMessage(), e);
+        }
+    }
+
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder binder) {
         antService = new AntService(binder);
