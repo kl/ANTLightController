@@ -13,6 +13,8 @@ import com.dsi.ant.channel.IAntChannelEventHandler;
 import com.dsi.ant.message.fromant.MessageFromAntType;
 import com.dsi.ant.message.ipc.AntMessageParcel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -52,15 +54,21 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
          * Called when an ongoing channel search has finished.
          */
         public void onChannelSearchFinished();
+        /**
+         * Called when there are no free channels available to open.
+         */
+        public void onNoChannelsAvailable();
     }
 
-    public static final String TAG = "ANTLightController";
+    private static final int CHANNEL_TIMER_TIMEOUT_MS = 1000 * 15;
 
     private Context context;                        // Context used for Toast.
     private OnChannelSearchStatusListener listener; // Is notified when a channel has connected.
     private ChannelRetriever channelRetriever;      // Used to get channels from the ANT system.
     private ChannelInitializer channelInitializer;  // Used to set default channel parameters.
     private Handler uiThreadHandler;                // Used to post runnables on the UI thread.
+
+    private List<AntChannelEventHandler> channelEventHandlers;
 
     // Set to true when a search is in progress, otherwise set to false.
     // A search is in progress from the moment a channel search is initialized until there
@@ -79,6 +87,9 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
         channelRetriever.setOnChannelProviderAvailableListener(this);
 
         channelInitializer = new ChannelInitializer(context);
+
+        channelEventHandlers = new ArrayList<AntChannelEventHandler>();
+
         searchInProgress = false;
     }
 
@@ -124,7 +135,7 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
 
     //
     // Starts the thread that runs a channel search. The thread will retrieve, initialize and open
-    // one ANT channel and then exit.
+    // all available ANT channels and then exit.
     //
     private void startChannelSearchThread() {
         new Thread(new Runnable() {
@@ -132,28 +143,50 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
             @Override
             public void run() {
 
-                AntChannel channel = null;
+                int channelsAvailable;
 
                 try {
-                    channel = channelRetriever.getChannel();
-                    channelInitializer.initializeChannel(channel);
-                    channel.open();
-                    new AntChannelEventHandler(channel);
-
+                    channelsAvailable = channelRetriever.getNumberOfChannelsAvailable();
+                    Log.i(GlobalState.LOG_TAG, "Number of channels available: " + channelsAvailable);
                 } catch (ChannelRetriever.ChannelRetrieveException e) {
-                    logErrorAndNotify("Unable to retrieve channel: " + e.getMessage(), e);
-                    releaseChannel(channel);
-                } catch (ChannelInitializer.ChannelInitializationException e) {
-                    logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
-                    releaseChannel(channel);
-                } catch (RemoteException e) {
-                    logErrorAndNotify("Unable to initialize channel: " + e.getMessage(), e);
-                    releaseChannel(channel);
-                } catch (AntCommandFailedException e) {
-                    logErrorAndNotify("Unable to open channel: " + e.getMessage(), e);
-                    releaseChannel(channel);
+                    stopChannelSearch();
+                    logErrorAndNotifyUser("Unable to retrieve channel: " + e.getMessage(), e);
+                    return;
                 }
 
+                if (channelsAvailable == 0) {
+                    stopChannelSearch();
+                    listener.onNoChannelsAvailable();
+                    return;
+                }
+
+                for (int i = 0; i < channelsAvailable; i++) {
+
+                    try {
+                        AntChannel channel = channelRetriever.getChannel();
+                        channelInitializer.initializeChannel(channel);
+                        channel.open();
+                        channelEventHandlers.add(new AntChannelEventHandler(channel));
+
+                    } catch (ChannelRetriever.ChannelRetrieveException e) {
+                        logErrorAndNotifyUser("Unable to retrieve channel: " + e.getMessage(), e);
+                        cleanupAndNotifySearchFinished();
+                        return;
+                    } catch (ChannelInitializer.ChannelInitializationException e) {
+                        logErrorAndNotifyUser("Unable to initialize channel: " + e.getMessage(), e);
+                        cleanupAndNotifySearchFinished();
+                        return;
+                    } catch (RemoteException e) {
+                        logErrorAndNotifyUser("Unable to initialize channel: " + e.getMessage(), e);
+                        cleanupAndNotifySearchFinished();
+                        return;
+                    } catch (AntCommandFailedException e) {
+                        logErrorAndNotifyUser("Unable to open channel: " + e.getMessage(), e);
+                        cleanupAndNotifySearchFinished();
+                        return;
+                    }
+                }
+                startChannelTimeoutTimer();
             }
         }).start();
     }
@@ -164,10 +197,17 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
     // However, these threads do not run at the same time, so the synchronized is a precaution only.
 
     private synchronized void stopChannelSearch() {
-        if (searchInProgress) {
-            searchInProgress = false;
-            listener.onChannelSearchFinished();
+        searchInProgress = false;
+        listener.onChannelSearchFinished();
+    }
+
+    private synchronized void cleanupChannelHandlers() {
+        for (AntChannelEventHandler handler : channelEventHandlers) {
+            if (!handler.isChannelConnected()) {
+                releaseChannel(handler.channel);
+            }
         }
+        channelEventHandlers.clear();
     }
 
     private synchronized void releaseChannel(AntChannel channel) {
@@ -176,9 +216,8 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
         }
     }
 
-    private void logErrorAndNotify(String message, Exception e) {
-        Log.e(TAG, message);
-        stopChannelSearch();
+    private void logErrorAndNotifyUser(String message, Exception e) {
+        Log.e(GlobalState.LOG_TAG, message);
         notifyUserChannelError(e);
     }
 
@@ -194,6 +233,23 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
         });
     }
 
+    private void startChannelTimeoutTimer() {
+        new Timer().schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                cleanupAndNotifySearchFinished();
+            }
+
+        }, CHANNEL_TIMER_TIMEOUT_MS);
+    }
+
+    private void cleanupAndNotifySearchFinished() {
+        cleanupChannelHandlers();
+        stopChannelSearch();
+    }
+
+
     /**
      * This class is used to listen for data received on a newly opened channel in order
      * to know whether the channel connected successfully or not.
@@ -201,7 +257,11 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
     private class AntChannelEventHandler implements IAntChannelEventHandler {
 
         private AntChannel channel;
-        private Timer timer;
+        private boolean isChannelConnected;
+
+        public boolean isChannelConnected() {
+            return isChannelConnected;
+        }
 
         /**
          * Constructor.
@@ -209,26 +269,13 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
          */
         public AntChannelEventHandler(AntChannel channel) {
             this.channel = channel;
-            timer = new Timer();
+            isChannelConnected = false;
 
             try {
                 channel.setChannelEventHandler(this);
-                startTimer();
             } catch (RemoteException e) {
-                Log.e(TAG, "Unable to set ANT Channel event handler: " + e.getMessage());
-                stopChannelSearch();
+                Log.e(GlobalState.LOG_TAG, "Unable to set ANT Channel event handler: " + e.getMessage());
             }
-        }
-
-        private void startTimer() {
-            timer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    releaseChannel(channel);
-                    stopChannelSearch();
-                }
-            }, 1000 * 15); // 15s delay. TODO: use a constant. See com.dsi.ant.message.LowPrioritySearchTimeout
         }
 
         /**
@@ -246,13 +293,11 @@ public class ChannelSearcher implements ChannelRetriever.OnChannelProviderAvaila
                 try {
                     channel.clearChannelEventHandler();
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Unable to clear ANT channel event handler: " + e.getMessage());
+                    Log.e(GlobalState.LOG_TAG, "Unable to clear ANT channel event handler: " + e.getMessage());
                 }
 
-                timer.cancel();
-                timer.purge();
+                isChannelConnected = true;
                 listener.onChannelConnected(channel);
-                startChannelSearchThread();
             }
         }
 
