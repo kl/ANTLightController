@@ -129,13 +129,11 @@ public class LightControllerActivity extends ActionBarActivity
 
     @Override
     public void onNoChannelsAvailable() {
-        final Context context = this;
-
         runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                Toast.makeText(context,
+                Toast.makeText(LightControllerActivity.this,
                                getString(R.string.no_ant_channels_available),
                                Toast.LENGTH_LONG).show();
             }
