@@ -13,7 +13,9 @@
               android:layout_weight="15"
               android:layout_gravity="center_vertical"
               android:paddingLeft="10dp"
-              android:text="test" />
+              android:textColor="@color/intensity_text_color"
+              android:textSize="20sp"
+              android:text="0" />
 
     <SeekBar android:id="@+id/channel_intensity_seekbar"
              android:layout_height="wrap_content"
