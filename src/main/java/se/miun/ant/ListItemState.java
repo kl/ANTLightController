@@ -15,6 +15,7 @@ public class ListItemState implements ChannelWrapper.ChannelDataListener,
         public void onChannelConnectionClosed(ListItemState listItemState);
         public void onChannelButtonClicked(ListItemState listItemState);
         public void onLightIntensityChanged(int lightIntensity);
+        public void onHasReceivedLightIntensityData();
     }
 
     public int lightIntensity;
@@ -26,25 +27,17 @@ public class ListItemState implements ChannelWrapper.ChannelDataListener,
     private ImageButton openButton;
 
     private byte[] lastReceivedData;
+    private boolean hasNotifiedDataReceived;
 
     public ListItemState(ChannelWrapper channelWrapper, ListItemStateListener stateListener) {
+        hasNotifiedDataReceived = false;
         this.channelWrapper = channelWrapper;
         this.channelWrapper.setChannelDataListener(this);
         this.stateListener = stateListener;
     }
 
     public void setIntensityBar(SeekBar newIntensityBar) {
-        if (newIntensityBar.equals(intensityBar)) return;
-
-        if (intensityBar != null) {
-            int currentProgress = intensityBar.getProgress();
-            intensityBar = newIntensityBar;
-            intensityBar.setProgress(currentProgress);
-        } else {
-            intensityBar = newIntensityBar;
-            intensityBar.setProgress(lightIntensity);
-        }
-
+        intensityBar = newIntensityBar;
         intensityBar.setOnSeekBarChangeListener(this);
     }
 
@@ -62,6 +55,7 @@ public class ListItemState implements ChannelWrapper.ChannelDataListener,
 
         if (!Arrays.equals(data, lastReceivedData)) {
             updateLightIntensityData(data);
+            notifyDataReceivedIfFirstTime();
             lastReceivedData = data;
         }
     }
@@ -75,6 +69,13 @@ public class ListItemState implements ChannelWrapper.ChannelDataListener,
             } catch (AntProtocolHelper.VolumeValueUnknownException e) {
                 Log.e(GlobalState.LOG_TAG, "Error: Volume value unknown");
             }
+        }
+    }
+
+    private void notifyDataReceivedIfFirstTime() {
+        if (!hasNotifiedDataReceived) {
+            stateListener.onHasReceivedLightIntensityData();
+            hasNotifiedDataReceived = true;
         }
     }
 

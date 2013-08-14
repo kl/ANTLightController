@@ -41,7 +41,8 @@ public class ChannelList implements ListItemState.ListItemStateListener  {
     public void addChannelWrapper(ChannelWrapper wrapper) {
         if (wrapper.isChannelAlive()) {
             listItemStates.add(new ListItemState(wrapper, this));
-            notifyDataSetChanged();
+            // Note: we do not call notifyDataSetChanged() here because the ListItemState might
+            // not yet have received any intensity data. See onLightIntensityChanged().
         }
     }
 
@@ -76,6 +77,11 @@ public class ChannelList implements ListItemState.ListItemStateListener  {
     @Override
     public void onLightIntensityChanged(int lightIntensity) {
         channelListener.onLightIntensityDataUpdated(getIntensityValues());
+    }
+
+    @Override
+    public void onHasReceivedLightIntensityData() {
+        notifyDataSetChanged();
     }
 
     @Override

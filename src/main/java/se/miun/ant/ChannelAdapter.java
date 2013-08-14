@@ -63,6 +63,7 @@ public class ChannelAdapter extends ArrayAdapter<ListItemState> {
         stateAtPosition.setIntensityBar(intensityBar);
         stateAtPosition.setOpenButton(openButton);
 
+        intensityBar.setProgress(stateAtPosition.lightIntensity);
         intensityView.setText(String.valueOf(stateAtPosition.lightIntensity));
 
         return channelView;
