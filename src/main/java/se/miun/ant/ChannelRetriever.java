@@ -11,6 +11,7 @@ import com.dsi.ant.AntService;
 import com.dsi.ant.channel.AntChannel;
 import com.dsi.ant.channel.AntChannelProvider;
 import com.dsi.ant.channel.ChannelNotAvailableException;
+import com.dsi.ant.channel.ChannelNotAvailableReason;
 import com.dsi.ant.channel.PredefinedNetwork;
 
 public class ChannelRetriever implements ServiceConnection {
@@ -42,9 +43,7 @@ public class ChannelRetriever implements ServiceConnection {
     }
 
     public AntChannel getChannel() throws ChannelRetrieveException {
-        if (channelProvider == null) {
-            throw new ChannelRetrieveException("ANT Channel Provider has not been initialized.");
-        }
+        checkChannelProviderInitialized();
 
         try {
             return channelProvider.acquireChannel(context, PredefinedNetwork.ANT_PLUS);
@@ -56,21 +55,57 @@ public class ChannelRetriever implements ServiceConnection {
     }
 
     public int getNumberOfChannelsAvailable() throws ChannelRetrieveException {
-        if (channelProvider == null) {
-            throw new ChannelRetrieveException("ANT Channel Provider has not been initialized.");
-        }
+        checkChannelProviderInitialized();
 
         try {
-            return channelProvider.getNumChannelsAvailable();
+            int availableChannels = channelProvider.getNumChannelsAvailable();
+
+            if (availableChannels == 0) {
+                return returnZeroAvailableChannelsUnlessException();
+            } else {
+                return availableChannels;
+            }
         } catch (RemoteException e) {
             throw new ChannelRetrieveException(e.getMessage(), e);
+        }
+    }
+
+    private int returnZeroAvailableChannelsUnlessException() throws ChannelRetrieveException {
+        Exception exception = getChannelOpenException();
+
+        if (isNoMoreChannelsAvailableException(exception)) {
+            return 0;
+        } else {
+            throw new ChannelRetrieveException(exception.getMessage(), exception);
+        }
+    }
+
+    private Exception getChannelOpenException() {
+        AntChannel channel = null;
+
+        try {
+            channel = getChannel();
+            return null;
+        } catch (ChannelRetrieveException e) {
+            return (Exception)e.getCause();
+        } finally {
+            if (channel != null) channel.release();
+        }
+    }
+
+    private boolean isNoMoreChannelsAvailableException(Exception exception) {
+
+        try {
+            ChannelNotAvailableException nae = (ChannelNotAvailableException)exception;
+            return nae.reasonCode == ChannelNotAvailableReason.ALL_CHANNELS_IN_USE;
+        } catch (ClassCastException e) {
+            return false;
         }
     }
 
     @Override
     public void onServiceConnected(ComponentName componentName, IBinder binder) {
         antService = new AntService(binder);
-
 
         try {
             channelProvider = antService.getChannelProvider();
@@ -86,6 +121,12 @@ public class ChannelRetriever implements ServiceConnection {
     private void notifyListenerIfProviderAvailable() {
         if (listener != null && channelProvider != null) {
             listener.onChannelProviderAvailable();
+        }
+    }
+
+    private void checkChannelProviderInitialized() throws ChannelRetrieveException {
+        if (channelProvider == null) {
+            throw new ChannelRetrieveException("ANT Channel Provider has not been initialized.");
         }
     }
 }
