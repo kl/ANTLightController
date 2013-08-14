@@ -2,6 +2,7 @@ package se.miun.ant;
 
 
 import android.content.Context;
+import android.widget.Toast;
 
 public class GlobalState {
 
@@ -11,8 +12,7 @@ public class GlobalState {
         if (applicationContext == null) applicationContext = context;
     }
 
-    // TODO: should be private. Only public for debugging.
-    public static Context applicationContext;
+    private static Context applicationContext;
 
     private static GlobalState instance;
 
@@ -43,5 +43,13 @@ public class GlobalState {
 
     public void openChannels() {
         channelList.openChannels();
+    }
+
+    /**
+     * For temporary debugging only! Should not be depended on.
+     * @param text the text to show as a Toast.
+     */
+    public static void DEBUG(String text) {
+        Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show();
     }
 }

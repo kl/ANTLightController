@@ -115,7 +115,7 @@ public class ChannelRetriever implements ServiceConnection {
         }
     }
 
-    @Override
+    @Override // TODO: does this need to be implemented?
     public void onServiceDisconnected(ComponentName componentName) {}
 
     private void notifyListenerIfProviderAvailable() {
