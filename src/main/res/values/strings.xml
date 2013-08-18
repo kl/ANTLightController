@@ -28,6 +28,9 @@
 
     <string name="action_restore_defaults">Restore defaults</string>
     <string name="no_ant_channels_available">All ANT channels are already in use.</string>
+    <string name="action_close_channel">Close channel</string>
+    <string name="view_fragment_close_channel_button">Close channel</string>
+    <string name="connection_closed_toast">Lost connection with the ANT channel</string>
 
 
 </resources>

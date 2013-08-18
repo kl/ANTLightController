@@ -5,12 +5,13 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ChannelList implements ListItemState.ListItemStateListener  {
 
     public interface ChannelListener {
-        public void onChannelSelected(ChannelWrapper channelWrapper);
+        public void onChannelSelected(ChannelWrapper channelWrapper, int lightIntensity);
         public void onLightIntensityDataUpdated(int[] intensityValues);
     }
 
@@ -43,6 +44,18 @@ public class ChannelList implements ListItemState.ListItemStateListener  {
             listItemStates.add(new ListItemState(wrapper, this));
             // Note: we do not call notifyDataSetChanged() here because the ListItemState might
             // not yet have received any intensity data. See onLightIntensityChanged().
+        }
+    }
+
+    public void validateChannels() {
+        Iterator<ListItemState> iterator = listItemStates.iterator();
+
+        while (iterator.hasNext()) {
+            ListItemState state = iterator.next();
+            if (!state.channelWrapper.isChannelAlive()) {
+                iterator.remove();
+                notifyDataSetChanged();
+            }
         }
     }
 
@@ -86,7 +99,8 @@ public class ChannelList implements ListItemState.ListItemStateListener  {
 
     @Override
     public void onChannelButtonClicked(ListItemState listItemState) {
-        channelListener.onChannelSelected(listItemState.channelWrapper);
+        channelListener.onChannelSelected(listItemState.channelWrapper,
+                                          listItemState.lightIntensity);
     }
 
 

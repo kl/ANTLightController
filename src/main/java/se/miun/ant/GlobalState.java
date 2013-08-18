@@ -2,6 +2,8 @@ package se.miun.ant;
 
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 public class GlobalState {
@@ -49,7 +51,13 @@ public class GlobalState {
      * For temporary debugging only! Should not be depended on.
      * @param text the text to show as a Toast.
      */
-    public static void DEBUG(String text) {
-        Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show();
+    public static void DEBUG(final String text) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+
+            @Override
+            public void run() {
+                Toast.makeText(applicationContext, text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

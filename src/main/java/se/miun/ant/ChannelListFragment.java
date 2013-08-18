@@ -10,7 +10,7 @@ import android.widget.TextView;
 public class ChannelListFragment extends ListFragment implements ChannelList.ChannelListener {
 
     public interface ChannelSelectedListener {
-        public void onChannelSelected(ChannelWrapper channelWrapper);
+        public void onChannelSelected(ChannelWrapper channelWrapper, int lightIntensity);
     }
 
     private ListView listView;
@@ -43,11 +43,17 @@ public class ChannelListFragment extends ListFragment implements ChannelList.Cha
     }
 
     @Override
-    public void onChannelSelected(ChannelWrapper wrapper) {
-        channelListener.onChannelSelected(wrapper);
+    public void onResume() {
+        super.onResume();
+        channelList.validateChannels();
     }
 
-    @Override // TODO: test this with a list that scrolls
+    @Override
+    public void onChannelSelected(ChannelWrapper wrapper, int lightIntensity) {
+        channelListener.onChannelSelected(wrapper, lightIntensity);
+    }
+
+    @Override
     public void onLightIntensityDataUpdated(final int[] intensityValues) {
         getActivity().runOnUiThread(new Runnable() {
 

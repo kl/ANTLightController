@@ -5,8 +5,48 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <TextView android:id="@+id/view_fragment_textview"
+    <TextView android:id="@+id/view_fragment_title"
               android:layout_width="wrap_content"
-              android:layout_height="wrap_content" />
+              android:layout_height="wrap_content"
+              android:paddingTop="20dp"
+              android:paddingBottom="5dp"
+              android:textSize="20sp"
+              android:layout_gravity="center_horizontal"
+              android:text="Channel title goes here" />
+
+    <View android:id="@+id/view_fragment_divider1"
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/view_fragment_divider_color" />
+
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="40dp"
+                  android:paddingLeft="10dp"
+                  android:paddingBottom="20dp" >
+
+        <TextView android:id="@+id/view_fragment_intensity"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_horizontal"
+                  android:textSize="30sp"
+                  android:text="44"/>
+
+        <SeekBar android:id="@+id/view_fragment_intensity_slider"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="20dp" />
+
+    </LinearLayout>
+
+
+    <Button android:id="@+id/view_fragment_close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/view_fragment_close_channel_button"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/close_button" />
 
 </LinearLayout>

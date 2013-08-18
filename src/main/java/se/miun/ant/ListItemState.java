@@ -32,7 +32,7 @@ public class ListItemState implements ChannelWrapper.ChannelDataListener,
     public ListItemState(ChannelWrapper channelWrapper, ListItemStateListener stateListener) {
         hasNotifiedDataReceived = false;
         this.channelWrapper = channelWrapper;
-        this.channelWrapper.setChannelDataListener(this);
+        this.channelWrapper.addChannelDataListener(this);
         this.stateListener = stateListener;
     }
 

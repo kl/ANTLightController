@@ -157,8 +157,8 @@ public class LightControllerActivity extends ActionBarActivity
     }
 
     @Override
-    public void onChannelSelected(ChannelWrapper channelWrapper) {
-        startChannelViewFragment(channelWrapper);
+    public void onChannelSelected(ChannelWrapper channelWrapper, int lightItensity) {
+        startChannelViewFragment(channelWrapper, lightItensity);
     }
 
     @Override
@@ -176,12 +176,12 @@ public class LightControllerActivity extends ActionBarActivity
         }
     }
 
-    private void startChannelViewFragment(ChannelWrapper channelWrapper) {
-        ChannelViewFragment channelViewFragment = new ChannelViewFragment(channelWrapper);
+    private void startChannelViewFragment(ChannelWrapper wrapper, int lightIntensity) {
+        ChannelViewFragment channelViewFragment = new ChannelViewFragment(wrapper, lightIntensity);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         transaction.replace(R.id.channel_list_fragment_container, channelViewFragment);
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        transaction.setTransition(FragmentTransaction.TRANSIT_ENTER_MASK);
         transaction.addToBackStack(null);
 
         transaction.commit();
