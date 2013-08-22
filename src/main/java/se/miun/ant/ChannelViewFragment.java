@@ -117,7 +117,7 @@ public class ChannelViewFragment extends Fragment implements ChannelWrapper.Chan
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {
             byte[] payload = AntProtocolHelper.makeIntensityPayload(progress);
-            channelWrapper.setBroadcastData(payload);
+            sendAcknowledgedData(payload);
         }
     }
 
@@ -126,4 +126,12 @@ public class ChannelViewFragment extends Fragment implements ChannelWrapper.Chan
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {}
+
+    private void sendAcknowledgedData(byte[] payload) {
+        try {
+            channelWrapper.sendAcknowledgedData(payload);
+        } catch (ChannelWrapper.ChannelDataSendException e) {
+            Log.e(GlobalState.LOG_TAG, e.getMessage());
+        }
+    }
 }

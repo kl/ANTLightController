@@ -93,7 +93,15 @@ public class ListItemState implements ChannelWrapper.ChannelDataListener,
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {
             byte[] payload = AntProtocolHelper.makeIntensityPayload(progress);
-            channelWrapper.setBroadcastData(payload);
+            sendAcknowledgedData(payload);
+        }
+    }
+
+    private void sendAcknowledgedData(byte[] payload) {
+        try {
+            channelWrapper.sendAcknowledgedData(payload);
+        } catch (ChannelWrapper.ChannelDataSendException e) {
+            Log.e(GlobalState.LOG_TAG, e.getMessage());
         }
     }
 

@@ -17,11 +17,20 @@ import com.dsi.ant.message.ipc.AntMessageParcel;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.*;
+
 public class ChannelWrapper implements IAntChannelEventHandler {
 
     public interface ChannelDataListener {
         public void onChannelDataReceived(byte[] data, ChannelWrapper channelWrapper);
         public void onChannelConnectionClosed();
+    }
+
+    public class ChannelDataSendException extends Exception {
+
+        public ChannelDataSendException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 
     public static final String TAG = "ANTLightController";
@@ -43,14 +52,31 @@ public class ChannelWrapper implements IAntChannelEventHandler {
         }
     }
 
-    public void setBroadcastData(byte[] data) {
-        if (antChannel == null) return;
+    public void sendAcknowledgedData(byte[] data) throws ChannelDataSendException {
+        checkNotNull(data, "data must not be null");
+
+        try {
+            antChannel.startSendAcknowledgedData(data);
+        } catch (RemoteException e) {
+            throwChannelDataSendException(e);
+        } catch (AntCommandFailedException e) {
+            throwChannelDataSendException(e);
+        }
+    }
+
+    public void setBroadcastData(byte[] data) throws ChannelDataSendException {
+        checkNotNull(data, "data must not be null");
 
         try {
             antChannel.setBroadcastData(data);
         } catch (RemoteException e) {
-            Log.e(TAG, "Error setting broadcast data: " + e.getMessage());
+            throwChannelDataSendException(e);
         }
+    }
+
+    private void throwChannelDataSendException(Throwable cause) throws ChannelDataSendException {
+        throw new ChannelDataSendException(
+                "Error sending data over the ANT channel: " + cause.getMessage(), cause);
     }
 
     public boolean isChannelAlive() {

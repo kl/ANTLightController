@@ -43,7 +43,6 @@ public class LightControllerActivity extends ActionBarActivity
 
         initializeUI();
         initializeComponents();
-        //channelSearcher.startChannelSearch();
     }
 
     @Override
@@ -188,8 +187,6 @@ public class LightControllerActivity extends ActionBarActivity
     }
 
     private void openSettings() {
-        // TODO: implement this
-        //Toast.makeText(this, "Settings pressed", Toast.LENGTH_LONG).show();
         Intent settingsIntent = new Intent(this, SettingsActivity.class);
         startActivity(settingsIntent);
     }
@@ -197,52 +194,5 @@ public class LightControllerActivity extends ActionBarActivity
     private void refreshAntChannels() {
         channelSearcher.startChannelSearch();
     }
-
-    /*
-    private void closeChannel() {
-        if (channel != null) {
-            try {
-                channel.close();
-            } catch (RemoteException e) {
-                Log.e(TAG, "Channel close exception: " + e.getMessage());
-            } catch (AntCommandFailedException e) {
-                Log.e(TAG, "Channel close exception: " + e.getMessage());
-            } finally {
-                channel = null;
-            }
-        }
-    }
-    */
-
-
-    /*
-    private void updateIntensityView(byte[] data) {
-        int intensityValue = parseIntensityData(data);
-        reportedIntensityTextView.setText(String.valueOf(intensityValue));
-    }
-    */
-
-    private byte parseIntensityData(byte[] data) {
-        // data has a length of 8 and is the payload sent by the master at period.
-        // For now return the first value in the array. TODO: implement the real protocol.
-        return data[0];
-    }
-
-    /*
-    private void updateIntensityBroadcastData(byte intensity) {
-        if (channel == null) return;
-
-        try {
-            channel.setBroadcastData(makeBroadcastData(intensity));
-        } catch (RemoteException e) {
-            Log.e(TAG, "Unable to set broadcast data: " + e.getMessage());
-        }
-    }
-    */
-
 }
-
-
-
-
 
