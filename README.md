@@ -27,6 +27,10 @@ Once the prerequisites have been met create a run-configuration that targets the
 3. Click the + icon and select 'Android Application'.
 4. Under 'Module' select 'ANTLightController' and under 'Target Device' select 'USB device'. Click OK.
 5. Click the 'Play' button and the application will be built and then run on the USB device.
+
+###Pulling changes to your local machine from within Android Studio
+
+If you have cloned the repository and set up the Android Studio project as described you can easily download changes made to this repository from within Android Studio, without using Git from the command line. To do so, click VCS -> Update Project in the main menu. 
   
 
 ###Running the application on the Android emulator
