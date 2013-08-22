@@ -34,6 +34,25 @@ If you have cloned the repository and set up the Android Studio project as descr
 
 ###Running the application on the Android emulator
 
-COMING SOON
+1. Open the SDK Manager (from Android Studio click 'Tools' -> 'Android' -> 'SDK Manager' in the main menu).
+2. In the SKD Manager, click 'Tools' -> 'Manage Add-on Sites...' in the main menu.
+3. Click 'User Defined Sites' -> 'New...'.
+4. Enter the following URL in the URL field and click OK: ```http://thisisant.com/android/emulator/repository.xml```
+5. Back in the main SDK Manager window look under 'Android 2.3.3 (API10)' and check the 'ANT Radio' checkbox. Also make sure that the SDK platform has been installed, if not check it's box too.
+6. Next click 'Install packages...' and wait for the installation to finish. You can now close the SDK Manager.
+7. Open the AVD Manager (from Android Studio click 'Tools' -> 'Android' -> 'AVD Manager' in the main menu).
+8. Click the 'New...' button.
+9. In the next dialog select one of the pre-defined device profiles, for example 'Nexus One'. In the 'Target' field make sure to select 'ANT Radio (ANT Wireless) - API Level 10'. Click 'OK'.
+10. Start the emulator by selecting it and clicking the 'Start...' button.
+11. Once the emulator has booted, open the pre-installed app 'ANT Emulator Configuration'.
+12. In the 'IP Address' field enter the local IP address of your computer (on Windows you can get this info by running the ```ipconfig``` command on the command line). In the 'Port' field enter ```9050```.
+13. Click 'Reconnect' and then click the home button to get back to the startup screen.
+14. If you have not done so already, download the ANT Android SDK package (http://www.thisisant.com/resources/android-ant-sdk-package/). In the SDK package folder, locate the file 'Android_ANTRadioService_4-0-0.apk' in the 'Services' folder.
+15. Go back to Android Studio and start the 'Monitor' tool ('Tools' -> 'Android' -> 'Monitor (DDMS included)').
+16. If the emulator is still running, you should see it the left side of the screen under the 'Devices' tab. Select the emulator and then click the 'File Explorer' tab. Expand the 'data' folder by clicking the arrow to the left of it, and select the 'app' folder. Next click the button with an arrow pointing right in the upper right corner of the screen labeled 'Push a file unto the device'.
+17. In the next dialog, navigate to the 'Android_ANTRadioService_4-0-0.apk' file and select 'Open'. You can now close the 'Monitor' tool.
+18. Download and extract the ANT Emulator Bridge Tool (http://www.thisisant.com/resources/ant-android-emulator-bridge-tool/).
+19. Start the bridge tool and click 'Connect to USB' (make sure that an ANT USB stick is connected to the computer first). Now the bridge tool should find the emulator and it should say "Found emulator" in the status window. If not, try disconnecting and connecting from the USB stick a couple of times and/or restarting the emulator.
+20. Finally go back to Android Studio and click the 'Play' button. In the next dialog select the emulator and click 'OK'. The app should now be uploaded to and started on the emulator.
 
 
