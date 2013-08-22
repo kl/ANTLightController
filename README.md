@@ -30,8 +30,7 @@ Once the prerequisites have been met create a run-configuration that targets the
 
 ###Pulling changes to your local machine from within Android Studio
 
-If you have cloned the repository and set up the Android Studio project as described you can easily download changes made to this repository from within Android Studio, without using Git from the command line. To do so, click VCS -> Update Project in the main menu. 
-  
+If you have cloned the repository and set up the Android Studio project as described you can easily download changes made to this repository to your local machine from within Android Studio, without using Git from the command line. To do so, click 'VCS' -> 'Update Project' in the main menu. In the next dialog select 'Merge' and 'Using Stash' and then click OK.
 
 ###Running the application on the Android emulator
 
