@@ -13,14 +13,6 @@ ANTLightController
 7. Download ```android_antlib.jar``` and put it in the ```libs``` folder - http://www.thisisant.com/resources/android-ant-sdk-package/ (the jar is in the ```API/ANT v4.0.0``` folder)
 8. Back in Android Studio rebuild the project by selecting 'Build' -> 'Rebuild Project' from the main menu. The build should now succeed.
 
-__Because Android Studio is still in a beta version, the Gradle build system is not completely integrated with the IDE. Therefore, to make the IDE recognize the Guava library do the following:__
-
-1. Click on 'File' -> 'Project Structure...' in the main menu.
-2. Under 'Project Settings' select 'Libraries' and click the green + button.
-3. Select 'From Maven...'.
-4. In the next dialog put ```com.google.guava:guava:14.0.1``` in the search field.
-5. Check the 'Download to:' checkbox and put in the path of the 'libs' folder you created before. Click 'OK'. All libraries should now be recognized by the IDE.
-
 ###Running the application on a physical Android device
 
 To run the app on a physical device the following prerequisites must be met:

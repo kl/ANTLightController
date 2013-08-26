@@ -17,8 +17,6 @@ import com.dsi.ant.message.ipc.AntMessageParcel;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.*;
-
 public class ChannelWrapper implements IAntChannelEventHandler {
 
     public interface ChannelDataListener {
@@ -53,7 +51,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
     }
 
     public void sendAcknowledgedData(byte[] data) throws ChannelDataSendException {
-        checkNotNull(data, "data must not be null");
+        if (data == null) throw new NullPointerException("data must not be null");
 
         try {
             antChannel.startSendAcknowledgedData(data);
@@ -65,7 +63,7 @@ public class ChannelWrapper implements IAntChannelEventHandler {
     }
 
     public void setBroadcastData(byte[] data) throws ChannelDataSendException {
-        checkNotNull(data, "data must not be null");
+        if (data == null) throw new NullPointerException("data must not be null");
 
         try {
             antChannel.setBroadcastData(data);
