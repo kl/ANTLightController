@@ -55,4 +55,6 @@ If you have cloned the repository and set up the Android Studio project as descr
 19. Start the bridge tool and click 'Connect to USB' (make sure that an ANT USB stick is connected to the computer first). Now the bridge tool should find the emulator and it should say "Found emulator" in the status window. If not, try disconnecting and connecting from the USB stick a couple of times and/or restarting the emulator.
 20. Finally go back to Android Studio and click the 'Play' button. In the next dialog select the emulator and click 'OK'. The app should now be uploaded to and started on the emulator.
 
+###
+Test
 
