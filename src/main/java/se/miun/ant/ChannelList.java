@@ -114,4 +114,3 @@ public class ChannelList implements ListItemState.ListItemStateListener  {
         return intensityValues;
     }
 }
-
