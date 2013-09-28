@@ -1,6 +1,10 @@
 ANTLightController
 ==================
 
+###Set up your Android Studio environment
+
+Install the __latest__ version of Android Studio from http://developer.android.com/sdk/installing/studio.html. You may have to update to the latest version after launching Android Studio for the first time. Next, make sure that you have an appropriate SDK (version 2.3 to 4.2) installed and that the __Android Support Repository__ and __Android Support Library__ are installed. You can install these components from the Android SDK Manager. You can launch the SDK manager by opening a new project in Android Studio and then click ```Tools -> Android -> SDK Manager``` in the main menu.
+
 ###Building with Android Studio
 
 1. Download and extract Gradle (http://services.gradle.org/distributions/gradle-1.7-bin.zip) somewhere on your computer.
